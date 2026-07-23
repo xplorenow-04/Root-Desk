@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, LogOut, Terminal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { NAV_GROUPS } from '@/constants/navigation';
 import { sidebarTransition } from '@/lib/animations';
@@ -18,8 +18,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       {/* ── Brand Header ── */}
       <div className="flex h-14 items-center justify-between px-4 border-b border-border/40">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.15)]">
-            <Terminal className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center shrink-0">
+            <img src="/fevicon1.png" alt="Root Desk" className="h-9 w-9" />
           </div>
           {!isCollapsed && (
             <motion.span
