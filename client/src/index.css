@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/*
+ * ============================================
+ * DevProject OS — Global Styles & Theme Tokens
+ * ============================================
+ * oklch color system with Light and Dark modes.
+ * Linear/Vercel-inspired aesthetic.
+ */
+
+/* ── Tailwind v4 Theme Configuration ── */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: oklch(var(--background));
+  --color-foreground: oklch(var(--foreground));
+  --color-card: oklch(var(--card));
+  --color-card-foreground: oklch(var(--card-foreground));
+  --color-popover: oklch(var(--popover));
+  --color-popover-foreground: oklch(var(--popover-foreground));
+  --color-primary: oklch(var(--primary));
+  --color-primary-foreground: oklch(var(--primary-foreground));
+  --color-secondary: oklch(var(--secondary));
+  --color-secondary-foreground: oklch(var(--secondary-foreground));
+  --color-muted: oklch(var(--muted));
+  --color-muted-foreground: oklch(var(--muted-foreground));
+  --color-accent: oklch(var(--accent));
+  --color-accent-foreground: oklch(var(--accent-foreground));
+  --color-destructive: oklch(var(--destructive));
+  --color-destructive-foreground: oklch(var(--destructive-foreground));
+  --color-border: oklch(var(--border));
+  --color-input: oklch(var(--input));
+  --color-ring: oklch(var(--ring));
+
+  --color-chart-1: oklch(var(--chart-1));
+  --color-chart-2: oklch(var(--chart-2));
+  --color-chart-3: oklch(var(--chart-3));
+  --color-chart-4: oklch(var(--chart-4));
+  --color-chart-5: oklch(var(--chart-5));
+
+  --color-sidebar: oklch(var(--sidebar-background));
+  --color-sidebar-foreground: oklch(var(--sidebar-foreground));
+  --color-sidebar-primary: oklch(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: oklch(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: oklch(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: oklch(var(--sidebar-accent-foreground));
+  --color-sidebar-border: oklch(var(--sidebar-border));
+  --color-sidebar-ring: oklch(var(--sidebar-ring));
+}
+
+/* ── Base Variables ── */
+:root {
+  --radius: 0.625rem;
+}
+
+/* ── Light Mode ── */
+:root,
+[data-theme="light"] {
+  --background: 0.985 0.002 247.839;
+  --foreground: 0.141 0.005 285.823;
+
+  --card: 1 0 0;
+  --card-foreground: 0.141 0.005 285.823;
+
+  --popover: 1 0 0;
+  --popover-foreground: 0.141 0.005 285.823;
+
+  --primary: 0.488 0.243 264.376;
+  --primary-foreground: 0.984 0.003 247.858;
+
+  --secondary: 0.96 0.005 286.029;
+  --secondary-foreground: 0.293 0.022 255.094;
+
+  --muted: 0.968 0.007 264.536;
+  --muted-foreground: 0.551 0.027 264.364;
+
+  --accent: 0.96 0.005 286.029;
+  --accent-foreground: 0.293 0.022 255.094;
+
+  --destructive: 0.577 0.245 27.325;
+  --destructive-foreground: 0.984 0.003 247.858;
+
+  --border: 0.929 0.013 255.508;
+  --input: 0.929 0.013 255.508;
+  --ring: 0.488 0.243 264.376;
+
+  --chart-1: 0.488 0.243 264.376;
+  --chart-2: 0.546 0.245 262.881;
+  --chart-3: 0.603 0.213 271.844;
+  --chart-4: 0.658 0.184 276.935;
+  --chart-5: 0.714 0.158 276.935;
+
+  --sidebar-background: 0.985 0.002 247.839;
+  --sidebar-foreground: 0.395 0.03 256.802;
+  --sidebar-primary: 0.488 0.243 264.376;
+  --sidebar-primary-foreground: 0.984 0.003 247.858;
+  --sidebar-accent: 0.96 0.005 286.029;
+  --sidebar-accent-foreground: 0.293 0.022 255.094;
+  --sidebar-border: 0.929 0.013 255.508;
+  --sidebar-ring: 0.488 0.243 264.376;
+}
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --background: 0.141 0.005 285.823;
+  --foreground: 0.985 0.002 247.839;
+
+  --card: 0.175 0.012 261.692;
+  --card-foreground: 0.985 0.002 247.839;
+
+  --popover: 0.175 0.012 261.692;
+  --popover-foreground: 0.985 0.002 247.839;
+
+  --primary: 0.585 0.233 277;
+  --primary-foreground: 0.141 0.005 285.823;
+
+  --secondary: 0.217 0.017 270.471;
+  --secondary-foreground: 0.883 0.015 264.182;
+
+  --muted: 0.217 0.017 270.471;
+  --muted-foreground: 0.551 0.027 264.364;
+
+  --accent: 0.217 0.017 270.471;
+  --accent-foreground: 0.883 0.015 264.182;
+
+  --destructive: 0.577 0.245 27.325;
+  --destructive-foreground: 0.984 0.003 247.858;
+
+  --border: 0.273 0.025 264.053;
+  --input: 0.273 0.025 264.053;
+  --ring: 0.585 0.233 277;
+
+  --chart-1: 0.585 0.233 277;
+  --chart-2: 0.546 0.245 262.881;
+  --chart-3: 0.603 0.213 271.844;
+  --chart-4: 0.658 0.184 276.935;
+  --chart-5: 0.714 0.158 276.935;
+
+  --sidebar-background: 0.157 0.01 264.182;
+  --sidebar-foreground: 0.551 0.027 264.364;
+  --sidebar-primary: 0.585 0.233 277;
+  --sidebar-primary-foreground: 0.141 0.005 285.823;
+  --sidebar-accent: 0.217 0.017 270.471;
+  --sidebar-accent-foreground: 0.883 0.015 264.182;
+  --sidebar-border: 0.273 0.025 264.053;
+  --sidebar-ring: 0.585 0.233 277;
+}
+
+/* ── Base Styles ── */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(var(--muted-foreground) / 0.5);
+}
+
+/* ── Custom Keyframe Animations ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Utility Classes ── */
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
