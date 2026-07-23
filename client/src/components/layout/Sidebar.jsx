@@ -28,7 +28,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
               exit={{ opacity: 0, x: -10 }}
               className="font-bold tracking-tight text-foreground whitespace-nowrap"
             >
-              DevProject OS
+              Root Desk
             </motion.span>
           )}
         </div>

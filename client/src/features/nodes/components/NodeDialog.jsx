@@ -30,9 +30,9 @@ const NodeDialog = ({
 
   // Determine which types are allowed for the current parent context
   const allowedTypes = useMemo(() => {
-    if (!defaultParentId) return ['module'];
+    if (!defaultParentId) return Object.keys(ALLOWED_CHILDREN);
     const parentNode = flatNodes.find((n) => String(n._id) === String(defaultParentId));
-    if (!parentNode) return ['module'];
+    if (!parentNode) return Object.keys(ALLOWED_CHILDREN);
     return ALLOWED_CHILDREN[parentNode.type] || [];
   }, [defaultParentId, flatNodes]);
 
