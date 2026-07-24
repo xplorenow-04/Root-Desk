@@ -4,6 +4,7 @@ import FlowEdge from '../models/FlowEdge.js';
 import FlowHistory from '../models/FlowHistory.js';
 import FlowTemplate from '../models/FlowTemplate.js';
 import ApiError from '../utils/ApiError.js';
+import mongoose from 'mongoose';
 
 export const createFlow = async ({ name, description, tags, entryPoints, permissions, variables, metadata, createdBy }) => {
   const flow = await Flow.create({
@@ -150,8 +151,8 @@ export const duplicateFlow = async (id, userId) => {
   }
 
   if (newNodes.length > 0) {
-    const nodesToInsert = newNodes.map(({ _id, flowId, type, label, position, config, variables, metadata }) => ({
-      _id, flowId, type, label, position, config, variables, metadata,
+    const nodesToInsert = newNodes.map(({ _id, flowId, clientId, type, label, position, config, variables, metadata }) => ({
+      _id, flowId, clientId, type, label, position, config, variables, metadata,
     }));
     await FlowNode.insertMany(nodesToInsert);
   }
@@ -198,6 +199,7 @@ export const saveFlowData = async (id, { nodes, edges, variables, changeLog }, u
     if (nodes.length > 0) {
       const nodeDocs = nodes.map((n, i) => ({
         flowId: id,
+        clientId: n.id,
         type: n.type,
         label: n.label || n.data?.label || `Node ${i + 1}`,
         position: n.position || { x: 0, y: 0 },
@@ -314,6 +316,7 @@ export const restoreFlowVersion = async (flowId, version, userId) => {
     await FlowNode.deleteMany({ flowId });
     const restoredNodes = nodes.map(n => ({
       flowId,
+      clientId: n.clientId || n.id,
       type: n.type,
       label: n.label,
       position: n.position,
@@ -393,6 +396,7 @@ export const exportFlow = async (id) => {
       metadata: flow.metadata,
     },
     nodes: nodes.map(n => ({
+      clientId: n.clientId,
       type: n.type,
       label: n.label,
       position: n.position,
@@ -434,6 +438,7 @@ export const importFlow = async (data, userId) => {
   if (nodes && nodes.length > 0) {
     const nodeDocs = nodes.map(n => ({
       flowId: flow._id,
+      clientId: n.clientId,
       type: n.type,
       label: n.label,
       position: n.position || { x: 0, y: 0 },
@@ -446,14 +451,14 @@ export const importFlow = async (data, userId) => {
 
   if (edges && edges.length > 0) {
     const savedNodes = await FlowNode.find({ flowId: flow._id }).lean();
-    const nodeLabelMap = {};
+    const nodeClientIdMap = {};
     for (const node of savedNodes) {
-      nodeLabelMap[node.label] = node._id;
+      if (node.clientId) nodeClientIdMap[node.clientId] = node._id;
     }
 
     const edgeDocs = edges.map(e => {
-      const sourceId = typeof e.source === 'string' && e.source.length === 24 ? e.source : nodeLabelMap[e.source];
-      const targetId = typeof e.target === 'string' && e.target.length === 24 ? e.target : nodeLabelMap[e.target];
+      const sourceId = nodeClientIdMap[e.source] || (typeof e.source === 'string' && e.source.length === 24 ? e.source : null);
+      const targetId = nodeClientIdMap[e.target] || (typeof e.target === 'string' && e.target.length === 24 ? e.target : null);
 
       return {
         flowId: flow._id,
@@ -531,6 +536,7 @@ export const createFlowFromTemplate = async (templateId, userId) => {
   if (nodes && nodes.length > 0) {
     const nodeDocs = nodes.map(n => ({
       flowId: flow._id,
+      clientId: n.clientId || n.id,
       type: n.type,
       label: n.label,
       position: n.position || { x: 0, y: 0 },
@@ -543,23 +549,28 @@ export const createFlowFromTemplate = async (templateId, userId) => {
 
   if (edges && edges.length > 0) {
     const savedNodes = await FlowNode.find({ flowId: flow._id }).lean();
-    const nodeLabelMap = {};
+    const nodeClientIdMap = {};
     for (const node of savedNodes) {
-      nodeLabelMap[node.label] = node._id;
+      if (node.clientId) nodeClientIdMap[node.clientId] = node._id;
     }
 
-    const edgeDocs = edges.map(e => ({
-      flowId: flow._id,
-      sourceNodeId: typeof e.source === 'string' ? (nodeLabelMap[e.source] || e.source) : e.source,
-      targetNodeId: typeof e.target === 'string' ? (nodeLabelMap[e.target] || e.target) : e.target,
-      sourceHandle: e.sourceHandle || null,
-      targetHandle: e.targetHandle || null,
-      label: e.label || '',
-      condition: e.condition || '',
-      edgeType: e.edgeType || 'default',
-      animated: e.animated || false,
-      style: e.style || {},
-    }));
+    const edgeDocs = edges.map(e => {
+      const sourceId = nodeClientIdMap[e.source || e.sourceNodeId];
+      const targetId = nodeClientIdMap[e.target || e.targetNodeId];
+
+      return {
+        flowId: flow._id,
+        sourceNodeId: sourceId || e.source || e.sourceNodeId,
+        targetNodeId: targetId || e.target || e.targetNodeId,
+        sourceHandle: e.sourceHandle || null,
+        targetHandle: e.targetHandle || null,
+        label: e.label || '',
+        condition: e.condition || '',
+        edgeType: e.edgeType || 'default',
+        animated: e.animated || false,
+        style: e.style || {},
+      };
+    });
     await FlowEdge.insertMany(edgeDocs);
   }
 
@@ -579,5 +590,3 @@ export const createFlowFromTemplate = async (templateId, userId) => {
 
   return flow.toObject();
 };
-
-import mongoose from 'mongoose';

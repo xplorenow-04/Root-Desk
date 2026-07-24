@@ -2,9 +2,10 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Save, Play, History, Settings, Variable, Lock, Download, Upload, Copy, MoreHorizontal,
-  ChevronRight, Bug, PanelLeftOpen,
+  ChevronRight, Bug, PanelLeftOpen, Link2, PanelRightOpen, PanelRightClose,
 } from 'lucide-react';
 import { useFlow, useSaveFlowData, useUpdateFlow, useArchiveFlow, useDuplicateFlow, useExportFlow, useRunFlow, useFlowExecutions, useFlowHistory } from '../hooks/useFlows';
+import { useFlowLinks } from '../hooks/useWorkflowLinks';
 import { useFlowEditor } from '../hooks/useFlowEditor';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useFlowValidation } from '../hooks/useFlowValidation';
@@ -20,6 +21,7 @@ import ExecutionLog from '../components/ExecutionLog';
 import DebugPanel from '../components/DebugPanel';
 import VersionHistory from '../components/VersionHistory';
 import WorkflowPropertiesPanel from '../components/WorkflowPropertiesPanel';
+import WorkflowLinkManager from '../components/WorkflowLinkManager';
 import ContextMenu from '../components/ContextMenu';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import ErrorState from '../../../components/shared/ErrorState';
@@ -30,12 +32,28 @@ import { useExecuteActions } from '../hooks/useFlowExecution';
 
 const RIGHT_TABS = [
   { id: 'properties', label: 'Properties', icon: Settings },
+  { id: 'links', label: 'Links', icon: Link2 },
   { id: 'variables', label: 'Variables', icon: Variable },
   { id: 'permissions', label: 'Permissions', icon: Lock },
   { id: 'history', label: 'History', icon: History },
   { id: 'executions', label: 'Executions', icon: Play },
   { id: 'debug', label: 'Debug', icon: Bug },
 ];
+
+// ── localStorage persistence keys ──
+const UI_STORAGE_KEYS = {
+  propertiesPanel: 'flow-editor-properties-panel',
+};
+
+const persist = (key, value) => {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+};
+const restore = (key, fallback) => {
+  try {
+    const v = localStorage.getItem(key);
+    return v !== null ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+};
 
 const FlowEditorPage = () => {
   const { id } = useParams();
@@ -54,7 +72,11 @@ const FlowEditorPage = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [recentNodes, setRecentNodes] = useState([]);
+  const [showPropertiesPanel, setShowPropertiesPanel] = useState(() => restore(UI_STORAGE_KEYS.propertiesPanel, true));
   const reactFlowInstance = useRef(null);
+
+  // Persist properties panel preference
+  useEffect(() => { persist(UI_STORAGE_KEYS.propertiesPanel, showPropertiesPanel); }, [showPropertiesPanel]);
 
   // ── Data Hooks ──
   const { data: flowData, isLoading, error } = useFlow(id);
@@ -67,6 +89,9 @@ const FlowEditorPage = () => {
   const { data: executionsData, isLoading: execsLoading } = useFlowExecutions(id);
   const { data: historyData, isLoading: historyLoading } = useFlowHistory(id);
   const execActions = useExecuteActions();
+
+  // ── Pre-load workflow links on page mount ──
+  useFlowLinks(id);
 
   // ── Editor Hook ──
   const editor = useFlowEditor();
@@ -246,6 +271,7 @@ const FlowEditorPage = () => {
       setSearchOpen(false);
     },
     onAutoLayout: editor.autoLayout,
+    onTogglePanel: () => setShowPropertiesPanel(prev => !prev),
     enabled: true,
   });
 
@@ -367,12 +393,14 @@ const FlowEditorPage = () => {
         onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
         onTogglePalette={() => setShowPalettePanel(!showPalettePanel)}
         onToggleDebug={() => { setActiveTab('debug'); setShowRightPanel(true); }}
+        onTogglePropertiesPanel={() => setShowPropertiesPanel(prev => !prev)}
         onAddNode={handleAddNode}
         onSearch={() => setSearchOpen(!searchOpen)}
         showMiniMap={showMiniMap}
         showGrid={showGrid}
         snapToGrid={snapToGrid}
         showPalettePanel={showPalettePanel}
+        showPropertiesPanel={showPropertiesPanel}
         isDirty={editor.isDirty}
         canUndo={editor.canUndo}
         canRedo={editor.canRedo}
@@ -469,14 +497,15 @@ const FlowEditorPage = () => {
         </div>
 
         {/* Right: Config / Properties Panel */}
-        {editor.selectedNode ? (
+        {editor.selectedNode && showPropertiesPanel ? (
           <NodeConfigPanel
             node={editor.selectedNode}
             onUpdate={editor.updateNodeData}
             onDelete={(nodeId) => editor.removeNode(nodeId)}
             onClose={() => editor.setSelectedNode(null)}
+            onMinimize={() => setShowPropertiesPanel(false)}
           />
-        ) : showRightPanel && (
+        ) : !editor.selectedNode && showRightPanel && (
           <div className="w-80 border-l border-border/40 bg-card/50 backdrop-blur-sm overflow-y-auto flex flex-col">
             {/* Tab bar */}
             <div className="flex border-b border-border/40 overflow-x-auto scrollbar-none">
@@ -504,6 +533,10 @@ const FlowEditorPage = () => {
             <div className="flex-1 overflow-y-auto p-4">
               {activeTab === 'properties' && (
                 <WorkflowPropertiesPanel flow={flow} onUpdate={handlePropertiesUpdate} />
+              )}
+
+              {activeTab === 'links' && (
+                <WorkflowLinkManager flowId={id} flowVersion={flow?.version} entryNodes={editor.nodes} />
               )}
 
               {activeTab === 'variables' && (

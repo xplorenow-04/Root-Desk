@@ -16,6 +16,7 @@ export const useKeyboardShortcuts = ({
   onSearch,
   onEscape,
   onAutoLayout,
+  onTogglePanel,
   enabled = true,
 }) => {
   const handleKeyDown = useCallback((e) => {
@@ -103,12 +104,19 @@ export const useKeyboardShortcuts = ({
       return;
     }
 
+    // Ctrl+B → Toggle Properties Panel
+    if (ctrl && key === 'b') {
+      e.preventDefault();
+      onTogglePanel?.();
+      return;
+    }
+
     // Escape → Deselect / Close panels
     if (key === 'escape') {
       onEscape?.();
       return;
     }
-  }, [enabled, onSave, onUndo, onRedo, onCopy, onPaste, onDuplicate, onDelete, onSelectAll, onSearch, onEscape, onAutoLayout]);
+  }, [enabled, onSave, onUndo, onRedo, onCopy, onPaste, onDuplicate, onDelete, onSelectAll, onSearch, onEscape, onAutoLayout, onTogglePanel]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

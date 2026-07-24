@@ -19,7 +19,7 @@ export const getWorkflowLinks = asyncHandler(async (req, res) => {
 });
 
 export const createWorkflowLink = asyncHandler(async (req, res) => {
-  const { flowId, targetType, targetId, targetLabel, triggerOn, priority, conditions } = req.body;
+  const { flowId, targetType, targetId, targetLabel, triggerOn, priority, entryNode, versionSelection, specificVersion, status, conditions, permissions } = req.body;
   const link = await workflowLinkService.createWorkflowLink({
     flowId,
     targetType,
@@ -27,7 +27,12 @@ export const createWorkflowLink = asyncHandler(async (req, res) => {
     targetLabel,
     triggerOn,
     priority,
+    entryNode,
+    versionSelection,
+    specificVersion,
+    status,
     conditions,
+    permissions,
     createdBy: req.user.id,
   });
   res.status(201).json(new ApiResponse(201, link, 'Workflow link created'));
