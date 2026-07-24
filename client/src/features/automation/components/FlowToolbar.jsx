@@ -3,7 +3,7 @@ import {
   Save, Undo2, Redo2, Copy, ClipboardPaste, CopyPlus, LayoutPanelTop,
   ZoomIn, ZoomOut, Maximize2, Minimize2, Eye, EyeOff, Lock, Unlock,
   Boxes, Grid3X3, Magnet, Search, AlertTriangle, CheckCircle2, Keyboard,
-  PanelLeftOpen, PanelLeftClose, Bug,
+  PanelLeftOpen, PanelLeftClose, Bug, PanelRightOpen, PanelRightClose,
 } from 'lucide-react';
 import { NODE_TYPES, NODE_CATEGORIES } from '../../../constants/flowTypes';
 import { cn } from '../../../lib/utils';
@@ -24,12 +24,14 @@ const FlowToolbar = ({
   onToggleSnapToGrid,
   onTogglePalette,
   onToggleDebug,
+  onTogglePropertiesPanel,
   onAddNode,
   onSearch,
   showMiniMap,
   showGrid = true,
   snapToGrid = true,
   showPalettePanel = false,
+  showPropertiesPanel = true,
   showDebugPanel = false,
   isDirty,
   canUndo,
@@ -147,6 +149,13 @@ const FlowToolbar = ({
 
       {/* Right side: Add Node */}
       <div className="flex items-center gap-2">
+        {/* Properties panel toggle */}
+        <ToolButton
+          icon={showPropertiesPanel ? PanelRightClose : PanelRightOpen}
+          label={`Properties Panel (${showPropertiesPanel ? 'Hide' : 'Show'})`}
+          onClick={onTogglePropertiesPanel}
+          active={showPropertiesPanel}
+        />
         {/* Keyboard shortcut help */}
         <div className="relative">
           <button
@@ -171,6 +180,7 @@ const FlowToolbar = ({
                     ['Ctrl+D', 'Duplicate'],
                     ['Ctrl+A', 'Select All'],
                     ['Ctrl+F', 'Search Nodes'],
+                    ['Ctrl+B', 'Toggle Properties Panel'],
                     ['Ctrl+Shift+L', 'Auto Layout'],
                     ['Delete', 'Delete Selected'],
                     ['Escape', 'Deselect'],

@@ -7,7 +7,7 @@ import ApiError from '../utils/ApiError.js';
  * Links workflows to pages, buttons, modules, events, etc.
  */
 
-export const createWorkflowLink = async ({ flowId, targetType, targetId, targetLabel, triggerOn, priority, conditions, createdBy }) => {
+export const createWorkflowLink = async ({ flowId, targetType, targetId, targetLabel, triggerOn, priority, entryNode, versionSelection, specificVersion, status, conditions, permissions, createdBy }) => {
   const flow = await Flow.findById(flowId);
   if (!flow || flow.isDeleted) {
     throw new ApiError(404, 'Flow not found');
@@ -20,7 +20,12 @@ export const createWorkflowLink = async ({ flowId, targetType, targetId, targetL
     targetLabel,
     triggerOn,
     priority,
+    entryNode,
+    versionSelection,
+    specificVersion,
+    status,
     conditions,
+    permissions,
     createdBy,
   });
 

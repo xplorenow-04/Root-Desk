@@ -275,7 +275,7 @@ export const useFlowEditor = (initialNodes = [], initialEdges = []) => {
       const nodeType = n.type || n.data?.nodeType || 'action';
       const isUtility = ['comment', 'sticky_note', 'group'].includes(nodeType);
       return {
-        id: n._id || n.id,
+        id: n.clientId || n._id || n.id,
         type: isUtility ? nodeType : 'flowNode',
         position: n.position || { x: 0, y: 0 },
         style: n.style || {},

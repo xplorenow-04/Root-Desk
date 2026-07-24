@@ -164,6 +164,11 @@ const flowNodeSchema = new mongoose.Schema({
     timeout: { type: Number, default: 30000 },
   },
   // ── New fields (additive) ──
+  clientId: {
+    type: String,
+    default: null,
+    index: true,
+  },
   locked: {
     type: Boolean,
     default: false,
