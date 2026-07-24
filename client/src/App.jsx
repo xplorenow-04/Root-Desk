@@ -18,6 +18,10 @@ const FavoritesPage = lazy(() => import('@/features/favorites/pages/FavoritesPag
 const RecentPage = lazy(() => import('@/features/recent/pages/RecentPage'));
 const TrashPage = lazy(() => import('@/features/trash/pages/TrashPage'));
 const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage'));
+const FlowListPage = lazy(() => import('@/features/automation/pages/FlowListPage'));
+const FlowEditorPage = lazy(() => import('@/features/automation/pages/FlowEditorPage'));
+const FlowTemplatesPage = lazy(() => import('@/features/automation/pages/FlowTemplatesPage'));
+const FlowExecutionDetailPage = lazy(() => import('@/features/automation/pages/FlowExecutionDetailPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +63,10 @@ function App() {
                       <Route path="/recent" element={<RecentPage />} />
                       <Route path="/trash" element={<TrashPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/automation/flows" element={<FlowListPage />} />
+                      <Route path="/automation/flows/:id" element={<FlowEditorPage />} />
+                      <Route path="/automation/templates" element={<FlowTemplatesPage />} />
+                      <Route path="/automation/executions/:executionId" element={<FlowExecutionDetailPage />} />
                     </Route>
 
                     {/* Catch-all Redirect */}
