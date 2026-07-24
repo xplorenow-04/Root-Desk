@@ -11,6 +11,9 @@ import projectRoutes from './routes/projects.js';
 import nodeRoutes from './routes/nodes.js';
 import dashboardRoutes from './routes/dashboard.js';
 import trashRoutes from './routes/trash.js';
+import flowRoutes from './routes/flows.js';
+import flowExecutionRoutes from './routes/flowExecutions.js';
+import workflowLinkRoutes from './routes/workflowLinks.js';
 
 const app = express();
 
@@ -40,6 +43,9 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/nodes', nodeRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/trash', trashRoutes);
+app.use('/api/flows', flowRoutes);
+app.use('/api/flow-executions', flowExecutionRoutes);
+app.use('/api/workflow-links', workflowLinkRoutes);
 
 // ── Health Check ──
 app.get('/api/health', (req, res) => {

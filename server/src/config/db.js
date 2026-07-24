@@ -1,10 +1,14 @@
 import mongoose from 'mongoose';
 import env from './env.js';
+import { seedFlowTemplates } from '../seeds/seedTemplates.js';
 
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.MONGODB_URI);
     console.log(`MongoDB connected: ${conn.connection.host}`);
+
+    // Seed default workflow templates
+    await seedFlowTemplates();
 
     // Graceful shutdown
     process.on('SIGINT', async () => {

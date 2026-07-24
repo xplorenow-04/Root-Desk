@@ -5,6 +5,8 @@ import {
   Clock,
   Trash2,
   Settings,
+  Workflow,
+  LayoutTemplate,
 } from 'lucide-react';
 
 /**
@@ -24,6 +26,13 @@ export const NAV_GROUPS = [
     items: [
       { label: 'Favorites', path: '/favorites', icon: Star },
       { label: 'Recent', path: '/recent', icon: Clock },
+    ],
+  },
+  {
+    label: 'Automation',
+    items: [
+      { label: 'Flows', path: '/automation/flows', icon: Workflow },
+      { label: 'Templates', path: '/automation/templates', icon: LayoutTemplate },
     ],
   },
   {
