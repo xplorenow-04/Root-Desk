@@ -28,7 +28,7 @@ const Header = ({ toggleMobileSidebar, onOpenCommandPalette }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border/40 bg-background/70 px-4 sm:px-6 shadow-sm backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-border/40 bg-background/70 px-4 sm:px-6 shadow-sm backdrop-blur-md">
       {/* ── Left Side: Mobile Menu & Breadcrumbs ── */}
       <div className="flex items-center gap-3">
         <button
@@ -47,11 +47,11 @@ const Header = ({ toggleMobileSidebar, onOpenCommandPalette }) => {
         {/* Search trigger placeholder */}
         <button
           onClick={onOpenCommandPalette}
-          className="flex h-9 w-40 sm:w-60 items-center justify-between rounded-lg border border-input bg-background/50 px-3 text-xs text-muted-foreground/80 hover:bg-background/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all cursor-pointer"
+          className="flex h-9 w-9 sm:w-60 items-center justify-center sm:justify-between rounded-lg border border-input bg-background/50 p-0 sm:px-3 text-xs text-muted-foreground/80 hover:bg-background/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all cursor-pointer"
         >
           <span className="flex items-center gap-2">
             <Search className="h-3.5 w-3.5" />
-            <span>Search workspace...</span>
+            <span className="hidden sm:inline">Search workspace...</span>
           </span>
           <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-0.5 rounded border border-border/60 bg-muted px-1.5 font-mono text-[9px] font-medium text-muted-foreground/90 shadow-sm">
             <span>Ctrl</span>
@@ -60,7 +60,7 @@ const Header = ({ toggleMobileSidebar, onOpenCommandPalette }) => {
         </button>
 
         {/* Theme Toggle Button */}
-        <div className="flex items-center rounded-lg border border-border/40 bg-background/30 p-0.5">
+        <div className="hidden sm:flex items-center rounded-lg border border-border/40 bg-background/30 p-0.5">
           <button
             onClick={() => setTheme('light')}
             className={`p-1.5 rounded-md hover:text-foreground transition-all cursor-pointer ${
@@ -104,7 +104,7 @@ const Header = ({ toggleMobileSidebar, onOpenCommandPalette }) => {
             <>
               {/* Overlay background to close dropdown */}
               <div
-                className="fixed inset-0 z-45"
+                className="fixed inset-0 z-40"
                 onClick={() => setDropdownOpen(false)}
               />
               <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-border/40 bg-popover text-popover-foreground p-1.5 shadow-xl backdrop-blur-md z-50 animate-in fade-in slide-in-from-top-1 duration-150">

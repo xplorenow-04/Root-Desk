@@ -14,7 +14,7 @@ const workflowLinkSchema = new mongoose.Schema({
   targetType: {
     type: String,
     required: [true, 'Target type is required'],
-    enum: ['page', 'button', 'sidebar', 'menu', 'form', 'module', 'route', 'event', 'api', 'crud', 'widget', 'action'],
+    enum: ['page', 'button', 'sidebar', 'menu', 'form', 'module', 'feature', 'task', 'route', 'event', 'api', 'crud', 'widget', 'action'],
   },
   targetId: {
     type: String,

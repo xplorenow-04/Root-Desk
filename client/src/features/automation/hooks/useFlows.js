@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as flowApi from '../../../services/flowApi';
+import { isValidObjectId } from '../../../lib/utils';
 
 export const useFlows = (params) => {
   return useQuery({
@@ -19,7 +20,7 @@ export const useFlow = (id) => {
       const res = await flowApi.getFlow(id);
       return res.data;
     },
-    enabled: !!id,
+    enabled: isValidObjectId(id),
   });
 };
 
@@ -28,7 +29,7 @@ export const useCreateFlow = () => {
   return useMutation({
     mutationFn: async (data) => {
       const res = await flowApi.createFlow(data);
-      return res.data;
+      return res.data?.data?.flow || res.data?.flow || res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flows'] });
@@ -109,7 +110,7 @@ export const useFlowHistory = (id, params) => {
       const res = await flowApi.getFlowHistory(id, params);
       return res.data;
     },
-    enabled: !!id,
+    enabled: isValidObjectId(id),
   });
 };
 
@@ -181,7 +182,7 @@ export const useFlowExecutions = (id, params) => {
       const res = await flowApi.getFlowExecutions(id, params);
       return res.data;
     },
-    enabled: !!id,
+    enabled: isValidObjectId(id),
   });
 };
 

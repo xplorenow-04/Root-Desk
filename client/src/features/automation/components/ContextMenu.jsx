@@ -57,14 +57,14 @@ const ContextMenu = ({
     <>
       {/* Backdrop to close menu */}
       <div
-        className="fixed inset-0 z-40"
+        className="fixed inset-0 z-[60]"
         onClick={onClose}
         onContextMenu={(e) => { e.preventDefault(); onClose?.(); }}
       />
 
       {/* Menu */}
       <div
-        className="fixed z-50 min-w-[180px] bg-card/95 border border-border/40 rounded-xl shadow-2xl backdrop-blur-xl py-1.5 px-1"
+        className="fixed z-[70] min-w-[180px] bg-card/95 border border-border/40 rounded-xl shadow-2xl backdrop-blur-xl py-1.5 px-1"
         style={{ top: position.y, left: position.x }}
       >
         {targetType === 'node' && (

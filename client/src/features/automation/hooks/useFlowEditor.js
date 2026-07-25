@@ -261,6 +261,7 @@ export const useFlowEditor = (initialNodes = [], initialEdges = []) => {
       sourceHandle: e.sourceHandle,
       targetHandle: e.targetHandle,
       label: e.label,
+      type: e.type || 'custom',
       animated: e.animated,
       style: e.style,
       edgeType: e.data?.edgeType || 'default',
@@ -296,6 +297,7 @@ export const useFlowEditor = (initialNodes = [], initialEdges = []) => {
       sourceHandle: e.sourceHandle || null,
       targetHandle: e.targetHandle || null,
       label: e.label || '',
+      type: e.type || 'custom',
       animated: e.animated !== undefined ? e.animated : true,
       style: e.style || { stroke: '#6366f1', strokeWidth: 2 },
       data: {

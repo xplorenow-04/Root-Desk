@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Layers, CheckCircle2, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import { useNodeTree, useNodeMutations } from '@/hooks/useNodes';
+import { useWorkflowLinks } from '@/features/automation/hooks/useWorkflowLinks';
 import TreeNodeRow from './TreeNodeRow';
 import NodeDialog from './NodeDialog';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -11,6 +12,19 @@ import ErrorState from '@/components/shared/ErrorState';
 const HierarchyTree = ({ projectId }) => {
   const { tree, flatNodes, isLoading, error, refetch } = useNodeTree(projectId);
   const { createNode, updateNode, deleteNode } = useNodeMutations(projectId);
+
+  // Fetch all workflow links once (shared across all NodeFlowLink instances)
+  const { data: workflowLinksData } = useWorkflowLinks({ limit: 1000 });
+  const allLinks = workflowLinksData?.links || [];
+  const linkedFlowMap = useMemo(() => {
+    const map = {};
+    for (const link of allLinks) {
+      if (link.targetType && link.targetId) {
+        map[`${link.targetType}:${link.targetId}`] = link;
+      }
+    }
+    return map;
+  }, [allLinks]);
 
   // Dialog States
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -171,7 +185,7 @@ const HierarchyTree = ({ projectId }) => {
 
       {/* ── Advanced Filters Drawer ── */}
       {showFilters && (
-        <div className="grid grid-cols-3 gap-4 p-4 border border-border/40 rounded-xl bg-card/25 animate-in fade-in duration-200">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-border/40 rounded-xl bg-card/25 animate-in fade-in duration-200">
           {/* Type Filter */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Type</label>
@@ -298,6 +312,7 @@ const HierarchyTree = ({ projectId }) => {
                   onAddSubNode={handleAddClick}
                   onEdit={handleEditClick}
                   onDelete={handleDeleteClick}
+                  linkedFlowMap={linkedFlowMap}
                 />
               ))}
             </div>

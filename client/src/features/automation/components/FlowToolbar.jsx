@@ -69,8 +69,8 @@ const FlowToolbar = ({
   const Divider = () => <div className="w-px h-6 bg-border/40 mx-1" />;
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-card/30 backdrop-blur-sm">
-      <div className="flex items-center gap-0.5">
+    <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-card/30 backdrop-blur-sm overflow-x-auto scrollbar-none">
+      <div className="flex items-center gap-0.5 shrink-0">
         {/* Palette toggle */}
         <ToolButton
           icon={showPalettePanel ? PanelLeftClose : PanelLeftOpen}
@@ -148,7 +148,7 @@ const FlowToolbar = ({
       </div>
 
       {/* Right side: Add Node */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0 ml-4">
         {/* Properties panel toggle */}
         <ToolButton
           icon={showPropertiesPanel ? PanelRightClose : PanelRightOpen}
@@ -168,7 +168,7 @@ const FlowToolbar = ({
           {showShortcuts && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
-              <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border/40 rounded-xl shadow-xl backdrop-blur-xl z-50 p-3">
+              <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border/40 rounded-xl shadow-xl backdrop-blur-xl z-[70] p-3">
                 <p className="text-xs font-semibold text-foreground mb-2">Keyboard Shortcuts</p>
                 <div className="space-y-1.5 text-[10px]">
                   {[
@@ -209,7 +209,7 @@ const FlowToolbar = ({
           {showPalette && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowPalette(false)} />
-              <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border/40 rounded-xl shadow-xl backdrop-blur-xl z-50 max-h-[70vh] overflow-y-auto">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border/40 rounded-xl shadow-xl backdrop-blur-xl z-[70] max-h-[70vh] overflow-y-auto">
                 <div className="p-2">
                   <p className="text-xs font-medium text-muted-foreground px-2 py-1.5">Drag nodes or click to add</p>
                   {NODE_CATEGORIES.map((category) => (

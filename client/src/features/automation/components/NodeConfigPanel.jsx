@@ -480,7 +480,7 @@ const NodeConfigPanel = ({ node, onUpdate, onDelete, onClose, onMinimize }) => {
       className={cn(
         "border-l border-border/40 bg-card/70 backdrop-blur-sm flex flex-col transition-all duration-300 ease-in-out relative overflow-hidden",
       )}
-      style={{ width: panelWidth, minWidth: 260, maxWidth: 600 }}
+      style={typeof window !== 'undefined' && window.innerWidth < 768 ? { width: '100%', minWidth: '100%' } : { width: panelWidth, minWidth: 260, maxWidth: 600 }}
     >
       {/* ── Resize handle (left edge) ── */}
       <div
