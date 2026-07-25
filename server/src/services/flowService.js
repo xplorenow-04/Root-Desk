@@ -3,6 +3,7 @@ import FlowNode from '../models/FlowNode.js';
 import FlowEdge from '../models/FlowEdge.js';
 import FlowHistory from '../models/FlowHistory.js';
 import FlowTemplate from '../models/FlowTemplate.js';
+import WorkflowLink from '../models/WorkflowLink.js';
 import ApiError from '../utils/ApiError.js';
 import mongoose from 'mongoose';
 
@@ -111,6 +112,9 @@ export const deleteFlow = async (id) => {
   flow.deletedAt = new Date();
   flow.status = 'archived';
   await flow.save();
+
+  // Remove all workflow links connected to this flow
+  await WorkflowLink.deleteMany({ flowId: id });
 
   return { id };
 };
