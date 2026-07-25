@@ -15,7 +15,7 @@ const FlowListPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [sort, setSort] = useState('updatedAt');
+  const [sort, setSort] = useState('createdAt');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -32,10 +32,12 @@ const FlowListPage = () => {
 
   const handleCreate = async (data) => {
     try {
-      const flow = await createFlow.mutateAsync(data);
+      const newFlow = await createFlow.mutateAsync(data);
       toast.success('Flow created successfully');
       setDialogOpen(false);
-      navigate(`/automation/flows/${flow._id}`);
+      if (newFlow?._id) {
+        navigate(`/automation/flows/${newFlow._id}`);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create flow');
     }
@@ -132,8 +134,8 @@ const FlowListPage = () => {
         }
       />
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -146,7 +148,7 @@ const FlowListPage = () => {
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={cn(
-            'p-2 rounded-xl border transition-all',
+            'p-2 rounded-xl border transition-all self-end sm:self-auto shrink-0',
             showFilters
               ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400'
               : 'border-border/40 text-muted-foreground hover:bg-muted/50'
@@ -160,14 +162,14 @@ const FlowListPage = () => {
         <motion.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
-          className="flex items-center gap-3 overflow-hidden"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 overflow-hidden"
         >
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Status:</span>
+            <span className="text-xs text-muted-foreground shrink-0">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border/40 text-xs text-foreground focus:outline-none"
+              className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-muted/50 border border-border/40 text-xs text-foreground focus:outline-none"
             >
               <option value="">All</option>
               {FLOW_STATUSES.map((s) => (
@@ -176,11 +178,11 @@ const FlowListPage = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Sort:</span>
+            <span className="text-xs text-muted-foreground shrink-0">Sort:</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border/40 text-xs text-foreground focus:outline-none"
+              className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-muted/50 border border-border/40 text-xs text-foreground focus:outline-none"
             >
               {FLOW_SORT_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>

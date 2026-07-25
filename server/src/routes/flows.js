@@ -4,7 +4,6 @@ import validateObjectId from '../middleware/validateObjectId.js';
 import {
   createFlowValidation,
   updateFlowValidation,
-  flowIdValidation,
   saveFlowDataValidation,
   runFlowValidation,
   restoreFlowValidation,
@@ -41,24 +40,24 @@ router.get('/', listFlowsValidation, getFlows);
 router.post('/', createFlowValidation, createFlow);
 
 router.get('/templates', getTemplates);
-router.post('/templates/:id/use', flowIdValidation, createFlowFromTemplate);
+router.post('/templates/:id/use', validateObjectId('id'), createFlowFromTemplate);
 
-router.get('/:id', flowIdValidation, getFlowById);
+router.get('/:id', validateObjectId('id'), getFlowById);
 router.put('/:id', updateFlowValidation, updateFlow);
-router.delete('/:id', flowIdValidation, deleteFlow);
+router.delete('/:id', validateObjectId('id'), deleteFlow);
 
-router.post('/:id/duplicate', flowIdValidation, duplicateFlow);
+router.post('/:id/duplicate', validateObjectId('id'), duplicateFlow);
 router.post('/:id/save', saveFlowDataValidation, saveFlowData);
-router.patch('/:id/archive', flowIdValidation, archiveFlow);
+router.patch('/:id/archive', validateObjectId('id'), archiveFlow);
 
-router.get('/:id/history', flowIdValidation, getFlowHistory);
+router.get('/:id/history', validateObjectId('id'), getFlowHistory);
 router.post('/:id/restore/:version', restoreFlowValidation, restoreFlowVersion);
 
-router.post('/:id/export', flowIdValidation, exportFlow);
+router.post('/:id/export', validateObjectId('id'), exportFlow);
 router.post('/import', importFlowValidation, importFlow);
 
 router.post('/:id/run', runFlowValidation, startFlowExecution);
-router.get('/:id/executions', flowIdValidation, getFlowExecutions);
-router.post('/:id/validate', flowIdValidation, validateFlow);
+router.get('/:id/executions', validateObjectId('id'), getFlowExecutions);
+router.post('/:id/validate', validateObjectId('id'), validateFlow);
 
 export default router;

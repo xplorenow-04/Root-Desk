@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Search, ChevronDown, ChevronRight, Star, Clock } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, Star, Clock, X } from 'lucide-react';
 import { NODE_TYPES, NODE_CATEGORIES } from '../../../constants/flowTypes';
 import { cn } from '../../../lib/utils';
 
@@ -96,10 +96,20 @@ const NodePalette = ({ onAddNode, onClose, recentNodes = [] }) => {
   };
 
   return (
-    <div className="w-64 border-r border-border/40 bg-card/50 backdrop-blur-sm flex flex-col h-full overflow-hidden">
+    <div className="w-full h-full flex flex-col overflow-hidden bg-card/95 backdrop-blur-sm">
       {/* Header */}
-      <div className="px-3 py-3 border-b border-border/40">
-        <h3 className="text-xs font-semibold text-foreground mb-2">Node Palette</h3>
+      <div className="px-3 py-3 border-b border-border/40 flex items-center justify-between gap-2">
+        <h3 className="text-xs font-semibold text-foreground">Node Palette</h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+      <div className="px-3 py-2 border-b border-border/40">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <input

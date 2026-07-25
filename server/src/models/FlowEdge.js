@@ -8,13 +8,11 @@ const flowEdgeSchema = new mongoose.Schema({
     index: true,
   },
   sourceNodeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'FlowNode',
+    type: String,
     required: [true, 'Source node ID is required'],
   },
   targetNodeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'FlowNode',
+    type: String,
     required: [true, 'Target node ID is required'],
   },
   sourceHandle: {

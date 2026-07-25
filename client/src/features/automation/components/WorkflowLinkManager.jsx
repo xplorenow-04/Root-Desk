@@ -345,91 +345,96 @@ const WorkflowLinkManager = ({ flowId, flowVersion = 1, entryNodes = [] }) => {
               <div
                 key={link._id}
                 className={cn(
-                  'flex items-center gap-2 p-2.5 rounded-lg border transition-all',
+                  'flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-lg border transition-all',
                   link.enabled
                     ? 'border-border/40 bg-card/30'
                     : 'border-border/20 bg-muted/20 opacity-60'
                 )}
               >
-                {/* Toggle */}
-                <button
-                  onClick={() => handleToggle(link._id)}
-                  className="shrink-0"
-                  title={link.enabled ? 'Disable' : 'Enable'}
-                >
-                  {link.enabled
-                    ? <ToggleRight className="w-5 h-5 text-green-500" />
-                    : <ToggleLeft className="w-5 h-5 text-muted-foreground" />}
-                </button>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {/* Toggle */}
+                  <button
+                    onClick={() => handleToggle(link._id)}
+                    className="shrink-0"
+                    title={link.enabled ? 'Disable' : 'Enable'}
+                  >
+                    {link.enabled
+                      ? <ToggleRight className="w-5 h-5 text-green-500" />
+                      : <ToggleLeft className="w-5 h-5 text-muted-foreground" />}
+                  </button>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 uppercase">
-                      {typeOpt?.label || link.targetType}
-                    </span>
-                    <span className="text-xs text-foreground font-medium truncate">
-                      {link.targetLabel || link.targetId}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-[9px] text-muted-foreground">
-                      Trigger: {link.triggerOn}
-                    </span>
-                    <span className="text-[9px] text-muted-foreground">
-                      Priority: {link.priority}
-                    </span>
-                    <span className="text-[9px] px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-400">
-                      {versionLabel(link)}
-                    </span>
-                    {link.entryNode && (
-                      <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                        <GitBranch className="w-2.5 h-2.5" />
-                        Entry: {link.entryNode?.slice(0, 8)}...
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 uppercase">
+                        {typeOpt?.label || link.targetType}
                       </span>
-                    )}
+                      <span className="text-xs text-foreground font-medium truncate">
+                        {link.targetLabel || link.targetId}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-[9px] text-muted-foreground">
+                        Trigger: {link.triggerOn}
+                      </span>
+                      <span className="text-[9px] text-muted-foreground">
+                        Priority: {link.priority}
+                      </span>
+                      <span className="text-[9px] px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-400">
+                        {versionLabel(link)}
+                      </span>
+                      {link.entryNode && (
+                        <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+                          <GitBranch className="w-2.5 h-2.5" />
+                          Entry: {link.entryNode?.slice(0, 8)}...
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Trigger select */}
-                <select
-                  value={link.triggerOn}
-                  onChange={(e) => handleUpdateField(link._id, 'triggerOn', e.target.value)}
-                  className="px-1.5 py-1 rounded bg-muted/50 border border-border/40 text-[10px] text-foreground focus:outline-none"
-                >
-                  {TRIGGER_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+                {/* Controls row */}
+                <div className="flex items-center gap-1.5 shrink-0 ml-7 sm:ml-0">
+                  {/* Trigger select */}
+                  <select
+                    value={link.triggerOn}
+                    onChange={(e) => handleUpdateField(link._id, 'triggerOn', e.target.value)}
+                    className="px-1.5 py-1 rounded bg-muted/50 border border-border/40 text-[10px] text-foreground focus:outline-none"
+                  >
+                    {TRIGGER_OPTIONS.map(o => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
 
-                {/* Version select */}
-                <select
-                  value={link.versionSelection || 'latest'}
-                  onChange={(e) => handleUpdateField(link._id, 'versionSelection', e.target.value)}
-                  className="px-1.5 py-1 rounded bg-muted/50 border border-border/40 text-[10px] text-foreground focus:outline-none"
-                  title="Version"
-                >
-                  {VERSION_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+                  {/* Version select */}
+                  <select
+                    value={link.versionSelection || 'latest'}
+                    onChange={(e) => handleUpdateField(link._id, 'versionSelection', e.target.value)}
+                    className="px-1.5 py-1 rounded bg-muted/50 border border-border/40 text-[10px] text-foreground focus:outline-none"
+                    title="Version"
+                  >
+                    {VERSION_OPTIONS.map(o => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
 
-                {/* Edit */}
-                <button
-                  onClick={() => startEdit(link)}
-                  className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all shrink-0"
-                  title="Edit"
-                >
-                  <Settings className="w-3 h-3" />
-                </button>
+                  {/* Edit */}
+                  <button
+                    onClick={() => startEdit(link)}
+                    className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all shrink-0"
+                    title="Edit"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
 
-                {/* Delete */}
-                <button
-                  onClick={() => handleDelete(link._id)}
-                  className="p-1 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-all shrink-0"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(link._id)}
+                    className="p-1 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-all shrink-0"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             );
           })}

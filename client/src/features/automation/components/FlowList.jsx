@@ -79,7 +79,7 @@ const FlowList = ({
                       {flow.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                  <div className="flex items-center flex-wrap gap-3 text-[10px] text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <User className="w-3 h-3" />
                       {flow.createdBy?.name || 'Unknown'}
@@ -107,7 +107,7 @@ const FlowList = ({
               <div className="relative flex-shrink-0">
                 <button
                   onClick={(e) => handleMenuToggle(e, flow._id)}
-                  className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all opacity-0 group-hover:opacity-100"
+                  className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                 </button>

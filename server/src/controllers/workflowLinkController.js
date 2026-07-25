@@ -1,5 +1,7 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import ApiError from '../utils/ApiError.js';
+import mongoose from 'mongoose';
 import * as workflowLinkService from '../services/workflowLinkService.js';
 
 /**
@@ -8,6 +10,9 @@ import * as workflowLinkService from '../services/workflowLinkService.js';
 
 export const getWorkflowLinks = asyncHandler(async (req, res) => {
   const { targetType, targetId, flowId, page, limit } = req.query;
+  if (flowId && !mongoose.Types.ObjectId.isValid(flowId)) {
+    throw ApiError.badRequest('Invalid flowId');
+  }
   const result = await workflowLinkService.getWorkflowLinks({
     targetType,
     targetId,

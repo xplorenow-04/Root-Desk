@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Edit2, Trash2, Layers, Zap, CheckSquare, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ALLOWED_CHILDREN, ALLOWED_CHILD_LABELS } from '@/constants/nodeTypes';
+import NodeFlowLink from './NodeFlowLink';
 
-const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete }) => {
+const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete, linkedFlowMap = {} }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
 
@@ -123,8 +124,13 @@ const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete }) => {
             {node.status === 'in-progress' ? 'In Progress' : node.status === 'in-review' ? 'In Review' : node.status === 'on-hold' ? 'On Hold' : node.status}
           </span>
 
+          {/* Flow link button (module/feature only) */}
+          {(node.type === 'module' || node.type === 'feature') && (
+            <NodeFlowLink nodeId={node._id} nodeType={node.type} linkedFlow={linkedFlowMap[`${node.type}:${node._id}`]} />
+          )}
+
           {/* Inline Action Buttons (visible on hover) */}
-          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 border-l border-border/30 pl-2">
+          <div className="flex items-center gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150 border-l border-border/30 pl-2">
             {/* Add child */}
             {canHaveChildren && (
               <button
@@ -166,6 +172,7 @@ const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete }) => {
               onAddSubNode={onAddSubNode}
               onEdit={onEdit}
               onDelete={onDelete}
+              linkedFlowMap={linkedFlowMap}
             />
           ))}
         </div>

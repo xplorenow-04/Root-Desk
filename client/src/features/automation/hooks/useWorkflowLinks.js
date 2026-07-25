@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as workflowLinkApi from '../../../services/workflowLinkApi';
+import { isValidObjectId } from '../../../lib/utils';
 
 /**
  * React Query hooks for persistent workflow-module links.
@@ -38,7 +39,7 @@ export const useFlowLinks = (flowId) => {
       const res = await workflowLinkApi.getWorkflowLinks({ flowId });
       return res.data;
     },
-    enabled: !!flowId,
+    enabled: isValidObjectId(flowId),
   });
 };
 

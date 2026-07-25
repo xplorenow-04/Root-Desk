@@ -55,7 +55,7 @@ const AppLayout = () => {
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
-              className="fixed inset-0 z-50 bg-black/60 md:hidden"
+              className="fixed inset-0 z-[80] bg-black/60 md:hidden"
             />
             {/* Drawer Content */}
             <motion.div
@@ -63,7 +63,7 @@ const AppLayout = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 left-0 z-55 w-[260px] md:hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 z-[85] w-[260px] md:hidden shadow-2xl"
             >
               <Sidebar isCollapsed={false} toggleSidebar={() => setIsMobileOpen(false)} />
             </motion.div>
