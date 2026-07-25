@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import { apiLimiter } from './middleware/rateLimiter.js';
 import errorHandler from './middleware/errorHandler.js';
 import env from './config/env.js';
 import authRoutes from './routes/auth.js';
@@ -34,10 +33,7 @@ if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// ── Rate Limiting ──
-app.use('/api', apiLimiter);
-
-// ── Routes (will be added in Phase 2+) ──
+// ── Routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/nodes', nodeRoutes);
