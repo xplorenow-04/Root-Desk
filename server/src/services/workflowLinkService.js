@@ -38,17 +38,20 @@ export const getWorkflowLinks = async ({ targetType, targetId, flowId, page = 1,
   if (targetId) query.targetId = targetId;
   if (flowId) query.flowId = flowId;
 
-  const total = await WorkflowLink.countDocuments(query);
-  const links = await WorkflowLink.find(query)
+  const rawLinks = await WorkflowLink.find(query)
     .sort({ priority: -1, createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .populate('flowId', 'name status version')
+    .populate('flowId', 'name status version isDeleted')
     .populate('createdBy', 'name email')
     .lean();
 
+  // Filter out links where the referenced flow does not exist or is soft-deleted
+  const links = rawLinks.filter(link => link.flowId && !link.flowId.isDeleted);
+  
+  const total = links.length;
+  const paginatedLinks = links.slice((page - 1) * limit, page * limit);
+
   return {
-    links,
+    links: paginatedLinks,
     pagination: { page, limit, total, pages: Math.ceil(total / limit) },
   };
 };
@@ -60,11 +63,11 @@ export const getLinkedWorkflows = async (targetType, targetId) => {
     enabled: true,
   })
     .sort({ priority: -1 })
-    .populate('flowId', 'name status version entryPoints')
+    .populate('flowId', 'name status version entryPoints isDeleted')
     .lean();
 
-  // Only return links where the flow is active
-  return links.filter(link => link.flowId && link.flowId.status === 'active');
+  // Only return links where the flow is active and not deleted
+  return links.filter(link => link.flowId && link.flowId.status === 'active' && !link.flowId.isDeleted);
 };
 
 export const updateWorkflowLink = async (id, updateData) => {
