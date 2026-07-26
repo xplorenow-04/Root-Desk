@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import CommandPalette from './CommandPalette';
 
 const AppLayout = () => {
+  const location = useLocation();
+  const isFullWidthPage = location.pathname.startsWith('/automation/');
+
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem('sidebarCollapsed');
     return stored ? JSON.parse(stored) : false;
@@ -79,10 +82,18 @@ const AppLayout = () => {
         />
         
         {/* Page Outlet Scroll Container */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 bg-background">
-          <div className="mx-auto max-w-7xl h-full">
+        <main className={`flex-1 bg-background ${
+          isFullWidthPage
+            ? 'overflow-hidden flex flex-col'
+            : 'overflow-y-auto px-4 py-6 sm:px-6 lg:px-8'
+        }`}>
+          {isFullWidthPage ? (
             <Outlet />
-          </div>
+          ) : (
+            <div className="mx-auto max-w-7xl h-full">
+              <Outlet />
+            </div>
+          )}
         </main>
       </div>
 
