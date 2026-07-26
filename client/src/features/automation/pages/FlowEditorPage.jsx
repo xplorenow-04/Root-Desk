@@ -305,7 +305,7 @@ const FlowEditorPage = () => {
   const isArchived = flow?.status === 'archived';
 
   return (
-    <div className="h-[calc(100vh-3rem)] flex flex-col">
+    <div className="flex-1 min-h-0 flex flex-col">
       {/* ── Top Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2 gap-2 border-b border-border/40 bg-card/30 backdrop-blur-sm">
         <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">

@@ -111,7 +111,7 @@ const FlowListPage = () => {
   }, [runFlow]);
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" className="space-y-6">
+    <motion.div variants={pageVariants} initial="initial" animate="animate" className="flex-1 min-h-0 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
       <PageHeader
         title="Flows"
         description="Create and manage automation flows"
