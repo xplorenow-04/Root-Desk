@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Search, Download, Upload, SlidersHorizontal, Workflow } from 'lucide-react';
 import PageHeader from '../../../components/shared/PageHeader';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog';
 import { useFlows, useCreateFlow, useDeleteFlow, useDuplicateFlow, useArchiveFlow, useExportFlow, useImportFlow, useRunFlow } from '../hooks/useFlows';
 import FlowList from '../components/FlowList';
 import FlowDialog from '../components/FlowDialog';
@@ -20,6 +21,8 @@ const FlowListPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [flowToDelete, setFlowToDelete] = useState(null);
 
   const { data, isLoading } = useFlows({ search: search || undefined, status: statusFilter || undefined, sort, page, limit: 20 });
   const createFlow = useCreateFlow();
@@ -43,15 +46,22 @@ const FlowListPage = () => {
     }
   };
 
-  const handleDelete = useCallback(async (id) => {
-    if (!window.confirm('Are you sure you want to delete this flow?')) return;
+  const handleDelete = useCallback((id) => {
+    setFlowToDelete(id);
+    setIsConfirmOpen(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!flowToDelete) return;
     try {
-      await deleteFlow.mutateAsync(id);
+      await deleteFlow.mutateAsync(flowToDelete);
       toast.success('Flow deleted');
     } catch (err) {
       toast.error('Failed to delete flow');
+    } finally {
+      setFlowToDelete(null);
     }
-  }, [deleteFlow]);
+  }, [deleteFlow, flowToDelete]);
 
   const handleDuplicate = useCallback(async (id) => {
     try {
@@ -209,6 +219,18 @@ const FlowListPage = () => {
         onClose={() => setDialogOpen(false)}
         onSubmit={handleCreate}
         mode="create"
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setFlowToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Flow"
+        description="Are you sure you want to permanently delete this flow? All execution history will also be removed."
+        confirmText="Delete Flow"
       />
     </motion.div>
   );

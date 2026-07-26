@@ -5,6 +5,7 @@ import { useNodeTree, useNodeMutations } from '@/hooks/useNodes';
 import { useWorkflowLinks } from '@/features/automation/hooks/useWorkflowLinks';
 import TreeNodeRow from './TreeNodeRow';
 import NodeDialog from './NodeDialog';
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import EmptyState from '@/components/shared/EmptyState';
 import ErrorState from '@/components/shared/ErrorState';
@@ -30,6 +31,10 @@ const HierarchyTree = ({ projectId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeNode, setActiveNode] = useState(null); // null means creating
   const [defaultParentId, setDefaultParentId] = useState(null);
+
+  // Confirm delete dialog state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [nodeToDelete, setNodeToDelete] = useState(null);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,12 +80,19 @@ const HierarchyTree = ({ projectId }) => {
     }
   };
 
-  const handleDeleteClick = async (id) => {
-    if (window.confirm('Are you sure you want to delete this node and all of its nested children?')) {
+  const handleDeleteClick = (id) => {
+    setNodeToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (nodeToDelete) {
       try {
-        await deleteNode(id);
+        await deleteNode(nodeToDelete);
       } catch (err) {
         console.error('Failed to delete node:', err);
+      } finally {
+        setNodeToDelete(null);
       }
     }
   };
@@ -328,6 +340,19 @@ const HierarchyTree = ({ projectId }) => {
         node={activeNode}
         flatNodes={flatNodes}
         defaultParentId={defaultParentId}
+      />
+
+      {/* ── Confirm Delete Dialog ── */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setNodeToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Node"
+        description="Are you sure you want to delete this node and all of its nested children? This action cannot be undone."
+        confirmText="Delete"
       />
     </div>
   );
