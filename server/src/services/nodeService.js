@@ -2,7 +2,7 @@ import Node from '../models/Node.js';
 import ApiError from '../utils/ApiError.js';
 
 const ALLOWED_CHILD_TYPES = {
-  module: ['feature'],
+  module: ['module', 'feature'],
   feature: ['task'],
   task: [],
 };

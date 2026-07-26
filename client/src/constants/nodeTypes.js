@@ -21,13 +21,13 @@ export function getNodeTypeConfig(value) {
  * Allowed children types per parent type.
  */
 export const ALLOWED_CHILDREN = {
-  module: ['feature'],
+  module: ['module', 'feature'],
   feature: ['task'],
   task: [],
 };
 
 export const ALLOWED_CHILD_LABELS = {
-  module: 'Feature',
+  module: 'Sub-Module / Feature',
   feature: 'Task',
   task: null,
 };
