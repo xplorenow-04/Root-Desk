@@ -100,16 +100,38 @@ const FlowEditorPage = () => {
   const validation = useFlowValidation(editor.nodes, editor.edges);
 
   const loadedFlowIdRef = useRef(null);
+  const needsLayoutRef = useRef(false);
 
   // ── Load flow data ──
   useEffect(() => {
     if (flowData && loadedFlowIdRef.current !== id) {
       const nodes = flowData.nodes || [];
       const edges = flowData.edges || [];
-      editor.loadFlowData(nodes, edges);
+      const result = editor.loadFlowData(nodes, edges);
       loadedFlowIdRef.current = id;
+
+      // If nodes need layout (e.g. all at origin), schedule auto-layout
+      if (result?.needsLayout) {
+        needsLayoutRef.current = true;
+      }
     }
   }, [flowData, id, editor]);
+
+  // ── Apply auto-layout after nodes are loaded and rendered ──
+  useEffect(() => {
+    if (needsLayoutRef.current && editor.nodes.length > 0 && editor.edges.length > 0) {
+      needsLayoutRef.current = false;
+      // Small delay to let React Flow render the nodes first
+      const timer = setTimeout(() => {
+        editor.autoLayout();
+        // Fit view after layout settles
+        setTimeout(() => {
+          reactFlowInstance.current?.fitView({ padding: 0.2, duration: 300 });
+        }, 50);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [editor.nodes.length, editor.edges.length, editor]);
 
   // ── Save handler ──
   const handleSave = useCallback(async () => {
@@ -253,6 +275,12 @@ const FlowEditorPage = () => {
     }
   }, [id, updateFlow]);
 
+  // ── Auto-layout + fit-view handler ──
+  const handleAutoLayout = useCallback(() => {
+    editor.autoLayout();
+    setTimeout(() => reactFlowInstance.current?.fitView({ padding: 0.2, duration: 300 }), 50);
+  }, [editor]);
+
   // ── Keyboard shortcuts ──
   // ── Pane and Node Click Helpers for Responsiveness ──
   const handlePaneClick = useCallback(() => {
@@ -293,7 +321,7 @@ const FlowEditorPage = () => {
     onEscape: () => {
       handlePaneClick();
     },
-    onAutoLayout: editor.autoLayout,
+    onAutoLayout: handleAutoLayout,
     onTogglePanel: () => setShowPropertiesPanel(prev => !prev),
     enabled: true,
   });
@@ -413,7 +441,7 @@ const FlowEditorPage = () => {
         onCopy={editor.copySelected}
         onPaste={editor.paste}
         onDuplicate={editor.duplicateSelected}
-        onAutoLayout={editor.autoLayout}
+        onAutoLayout={handleAutoLayout}
         onZoomIn={() => reactFlowInstance.current?.zoomIn()}
         onZoomOut={() => reactFlowInstance.current?.zoomOut()}
         onFitView={() => reactFlowInstance.current?.fitView({ padding: 0.2 })}
@@ -644,7 +672,7 @@ const FlowEditorPage = () => {
               editor.addNode('comment', contextMenu.flowPosition);
             }
           }}
-          onAutoLayout={editor.autoLayout}
+          onAutoLayout={handleAutoLayout}
         />
       )}
 

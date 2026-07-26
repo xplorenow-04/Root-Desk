@@ -4,6 +4,7 @@ import {
   applyEdgeChanges,
   addEdge,
 } from '@xyflow/react';
+import Dagre from '@dagrejs/dagre';
 
 const initialNodeConfig = (type, position = { x: 0, y: 0 }) => {
   const isUtility = ['comment', 'sticky_note', 'group'].includes(type);
@@ -223,27 +224,49 @@ export const useFlowEditor = (initialNodes = [], initialEdges = []) => {
     setIsDirty(true);
   }, [selectedNode, pushUndo]);
 
-  const autoLayout = useCallback(() => {
+  const autoLayout = useCallback((direction = 'TB') => {
+    if (nodes.length === 0) return false;
     pushUndo();
-    const spacing = { x: 250, y: 100 };
-    const startY = 100;
-    const sorted = [...nodes].sort((a, b) => {
-      const aType = a.data?.nodeType || a.type;
-      const bType = b.data?.nodeType || b.type;
-      if (aType === 'start') return -1;
-      if (bType === 'start') return 1;
-      if (aType === 'end') return 1;
-      if (bType === 'end') return -1;
-      return 0;
+
+    const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+    g.setGraph({
+      rankdir: direction,
+      nodesep: 80,
+      ranksep: 60,
+      marginx: 40,
+      marginy: 40,
     });
 
-    const updated = sorted.map((node, index) => ({
-      ...node,
-      position: { x: 100, y: startY + index * spacing.y },
-    }));
+    // Default node dimensions
+    const nodeWidth = 180;
+    const nodeHeight = 80;
+
+    nodes.forEach((node) => {
+      g.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+      g.setEdge(edge.source, edge.target);
+    });
+
+    Dagre.layout(g);
+
+    const updated = nodes.map((node) => {
+      const pos = g.node(node.id);
+      // Dagre gives center positions; React Flow uses top-left
+      return {
+        ...node,
+        position: {
+          x: pos.x - nodeWidth / 2,
+          y: pos.y - nodeHeight / 2,
+        },
+      };
+    });
+
     setNodes(updated);
     setIsDirty(true);
-  }, [nodes, pushUndo]);
+    return true; // signal that layout was applied
+  }, [nodes, edges, pushUndo]);
 
   const getFlowData = useCallback(() => {
     const flowNodes = nodes.map(n => ({
@@ -306,12 +329,20 @@ export const useFlowEditor = (initialNodes = [], initialEdges = []) => {
         edgeType: e.edgeType || 'default',
       },
     }));
+
+    // Detect if nodes need auto-layout (all at origin or overlapping at same spot)
+    const needsLayout = formattedNodes.length > 1 && formattedNodes.every(
+      n => n.position.x === 0 && n.position.y === 0
+    );
+
     setNodes(formattedNodes);
     setEdges(formattedEdges);
     setIsDirty(false);
     undoStack.current = [];
     redoStack.current = [];
     updateUndoRedoState();
+
+    return { needsLayout };
   }, [updateUndoRedoState]);
 
   const clearEditor = useCallback(() => {

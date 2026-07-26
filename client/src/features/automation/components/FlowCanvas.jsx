@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -60,9 +60,12 @@ const FlowCanvasInner = ({
     if (onInit) onInit(reactFlowInstance);
   }, [onInit, reactFlowInstance]);
 
+  const hasFittedRef = useRef(false);
+
   useEffect(() => {
-    if (shouldFitView && nodes.length > 0) {
-      setTimeout(() => reactFlowInstance.fitView({ padding: 0.2 }), 100);
+    if (shouldFitView && nodes.length > 0 && !hasFittedRef.current) {
+      hasFittedRef.current = true;
+      setTimeout(() => reactFlowInstance.fitView({ padding: 0.2, duration: 300 }), 150);
     }
   }, [nodes.length, shouldFitView, reactFlowInstance]);
 
