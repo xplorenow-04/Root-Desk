@@ -13,6 +13,7 @@ import trashRoutes from './routes/trash.js';
 import flowRoutes from './routes/flows.js';
 import flowExecutionRoutes from './routes/flowExecutions.js';
 import workflowLinkRoutes from './routes/workflowLinks.js';
+import databaseStudioRoutes from './routes/databaseStudio.js';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/trash', trashRoutes);
 app.use('/api/flows', flowRoutes);
 app.use('/api/flow-executions', flowExecutionRoutes);
 app.use('/api/workflow-links', workflowLinkRoutes);
+app.use('/api/database-studio', databaseStudioRoutes);
 
 // ── Health Check ──
 app.get('/api/health', (req, res) => {

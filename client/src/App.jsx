@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/features/auth/pages/RegisterPage'));
 const ProjectsPage = lazy(() => import('@/features/projects/pages/ProjectsPage'));
 const ProjectDetailPage = lazy(() => import('@/features/projects/pages/ProjectDetailPage'));
+const DatabaseStudioPage = lazy(() => import('@/features/database-studio/pages/DatabaseStudioPage'));
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage'));
 const FavoritesPage = lazy(() => import('@/features/favorites/pages/FavoritesPage'));
 const RecentPage = lazy(() => import('@/features/recent/pages/RecentPage'));
@@ -59,6 +60,7 @@ function App() {
                       <Route path="/dashboard" element={<DashboardPage />} />
                       <Route path="/projects" element={<ProjectsPage />} />
                       <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                      <Route path="/database-studio" element={<DatabaseStudioPage />} />
                       <Route path="/favorites" element={<FavoritesPage />} />
                       <Route path="/recent" element={<RecentPage />} />
                       <Route path="/trash" element={<TrashPage />} />
