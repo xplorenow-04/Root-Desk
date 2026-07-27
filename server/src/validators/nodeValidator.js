@@ -71,6 +71,18 @@ export const createNodeValidator = [
     .custom((val) => val === null || val === '' || !isNaN(Date.parse(val)))
     .withMessage('Invalid due date format')
     .customSanitizer((val) => (val === '' ? null : val)),
+
+  body('icon')
+    .optional({ nullable: true })
+    .trim(),
+
+  body('iconColor')
+    .optional({ nullable: true })
+    .trim(),
+
+  body('iconPack')
+    .optional({ nullable: true })
+    .trim(),
 ];
 
 export const updateNodeValidator = [
@@ -137,4 +149,16 @@ export const updateNodeValidator = [
     .custom((val) => val === null || val === '' || !isNaN(Date.parse(val)))
     .withMessage('Invalid due date format')
     .customSanitizer((val) => (val === '' ? null : val)),
+
+  body('icon')
+    .optional({ nullable: true })
+    .trim(),
+
+  body('iconColor')
+    .optional({ nullable: true })
+    .trim(),
+
+  body('iconPack')
+    .optional({ nullable: true })
+    .trim(),
 ];

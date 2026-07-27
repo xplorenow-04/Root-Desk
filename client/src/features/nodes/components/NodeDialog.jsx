@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Tag, Calendar, LayoutGrid } from 'lucide-react';
 import { ALLOWED_CHILDREN } from '@/constants/nodeTypes';
+import IconPicker from '@/components/shared/IconPicker';
 
 const nodeFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(150, 'Title must be under 150 characters'),
@@ -14,6 +15,9 @@ const nodeFormSchema = z.object({
   priority: z.enum(['critical', 'high', 'medium', 'low', 'none']).default('medium'),
   parentId: z.string().nullable().default(null),
   dueDate: z.string().nullable().default(null),
+  icon: z.string().nullable().optional().default(null),
+  iconColor: z.string().nullable().optional().default(null),
+  iconPack: z.string().nullable().optional().default('lucide'),
 });
 
 const NodeDialog = ({
@@ -42,6 +46,7 @@ const NodeDialog = ({
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm({
@@ -54,6 +59,9 @@ const NodeDialog = ({
       priority: 'medium',
       parentId: null,
       dueDate: '',
+      icon: null,
+      iconColor: null,
+      iconPack: 'lucide',
     },
   });
 
@@ -75,6 +83,18 @@ const NodeDialog = ({
     return flatNodes.filter((n) => !excludedIds.includes(String(n._id)));
   }, [flatNodes, node]);
 
+  const selectedType = watch('type');
+  const selectedIcon = watch('icon');
+  const selectedIconColor = watch('iconColor');
+
+  // Automatically reset custom icon/color if the type becomes "task"
+  useEffect(() => {
+    if (selectedType === 'task') {
+      setValue('icon', null);
+      setValue('iconColor', null);
+    }
+  }, [selectedType, setValue]);
+
   // Handle Form State Initialization
   useEffect(() => {
     if (isOpen) {
@@ -88,6 +108,9 @@ const NodeDialog = ({
           priority: node.priority,
           parentId: node.parentId ? String(node.parentId) : '',
           dueDate: node.dueDate ? new Date(node.dueDate).toISOString().split('T')[0] : '',
+          icon: node.icon || null,
+          iconColor: node.iconColor || null,
+          iconPack: node.iconPack || 'lucide',
         });
         setLabels(node.labels || []);
       } else {
@@ -100,6 +123,9 @@ const NodeDialog = ({
           priority: 'medium',
           parentId: defaultParentId ? String(defaultParentId) : '',
           dueDate: '',
+          icon: null,
+          iconColor: null,
+          iconPack: 'lucide',
         });
         setLabels([]);
       }
@@ -262,6 +288,21 @@ const NodeDialog = ({
                     </select>
                   </div>
                 </div>
+
+                {/* Icon & Color Selection (Only for Module & Feature types) */}
+                {(selectedType === 'module' || selectedType === 'feature') && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground/90 block">
+                      Custom Icon & Accent Color
+                    </label>
+                    <IconPicker
+                      value={selectedIcon}
+                      color={selectedIconColor}
+                      onChange={(val) => setValue('icon', val)}
+                      onColorChange={(val) => setValue('iconColor', val)}
+                    />
+                  </div>
+                )}
 
                 {/* Parent Node Selector */}
                 <div className="space-y-1.5">

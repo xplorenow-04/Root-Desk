@@ -3,13 +3,26 @@ import { ChevronDown, ChevronRight, Plus, Edit2, Trash2, Layers, Zap, CheckSquar
 import { motion, AnimatePresence } from 'framer-motion';
 import { ALLOWED_CHILDREN, ALLOWED_CHILD_LABELS } from '@/constants/nodeTypes';
 import NodeFlowLink from './NodeFlowLink';
+import { getIcon } from '@/lib/icons';
 
 const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete, linkedFlowMap = {} }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
 
-  const getTypeIcon = (type) => {
-    switch (type) {
+  const renderNodeIcon = (node) => {
+    if (node.icon) {
+      const IconComponent = getIcon(node.icon);
+      if (IconComponent) {
+        return (
+          <IconComponent
+            className="h-4 w-4 shrink-0 transition-colors duration-150"
+            style={{ color: node.iconColor || undefined }}
+          />
+        );
+      }
+    }
+
+    switch (node.type) {
       case 'module':
         return <Layers className="h-4 w-4 text-violet-500 shrink-0" />;
       case 'feature':
@@ -78,7 +91,7 @@ const TreeNodeRow = ({ node, depth = 0, onAddSubNode, onEdit, onDelete, linkedFl
           </div>
 
           {/* Type Icon */}
-          {getTypeIcon(node.type)}
+          {renderNodeIcon(node)}
 
           {/* Title and Labels */}
           <div className="flex items-center gap-2 min-w-0">
