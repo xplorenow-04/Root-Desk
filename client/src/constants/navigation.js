@@ -7,6 +7,7 @@ import {
   Settings,
   Workflow,
   LayoutTemplate,
+  Database,
 } from 'lucide-react';
 
 /**
@@ -33,6 +34,7 @@ export const NAV_GROUPS = [
     items: [
       { label: 'Flows', path: '/automation/flows', icon: Workflow },
       { label: 'Templates', path: '/automation/templates', icon: LayoutTemplate },
+      { label: 'Database Studio', path: '/database-studio', icon: Database },
     ],
   },
   {
