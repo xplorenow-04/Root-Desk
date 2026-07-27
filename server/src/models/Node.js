@@ -31,6 +31,18 @@ const nodeSchema = new mongoose.Schema(
       enum: ['module', 'feature', 'task'],
       default: 'module',
     },
+    icon: {
+      type: String,
+      default: null,
+    },
+    iconColor: {
+      type: String,
+      default: null,
+    },
+    iconPack: {
+      type: String,
+      default: 'lucide',
+    },
     status: {
       type: String,
       enum: ['todo', 'in-progress', 'in-review', 'on-hold', 'completed', 'cancelled', 'archived'],
