@@ -9,6 +9,35 @@ import { cn } from '../../../lib/utils';
  * Renders multiple source handles for decision/switch/loop nodes.
  * Shows execution status overlay, lock indicator, and type-specific badges.
  */
+
+/**
+ * Invisible full-side connect strips.
+ * Nodes can be connected from / to any point along their sides instead of
+ * fixed dots. The strips are the drag/target hit-areas; subtle dots appear
+ * on node hover as affordance. `id` is left null on the primary left/right
+ * strips so existing saved edges (null handles) keep resolving to them.
+ */
+const stripBase = {
+  borderRadius: 0,
+  background: 'transparent',
+  border: 'none',
+  minWidth: 0,
+  minHeight: 0,
+  margin: 0,
+  zIndex: 6,
+};
+
+const leftStrip = { ...stripBase, top: '50%', left: 0, transform: 'translate(0,-50%)', width: 16, height: 'calc(100% - 24px)' };
+const rightStrip = { ...stripBase, top: '50%', right: 0, transform: 'translate(0,-50%)', width: 16, height: 'calc(100% - 24px)' };
+const topStrip = { ...stripBase, top: 0, left: '50%', transform: 'translate(-50%,0)', width: 'calc(100% - 24px)', height: 16 };
+const bottomStrip = { ...stripBase, top: 'auto', bottom: 0, left: '50%', transform: 'translate(-50%,0)', width: 'calc(100% - 24px)', height: 16 };
+
+const HoverDot = ({ className = '' }) => (
+  <span
+    className={`pointer-events-none absolute z-10 h-2 w-2 rounded-full border-2 border-indigo-500 bg-background opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100 ${className}`}
+  />
+);
+
 const FlowNode = ({ data, selected, id }) => {
   const nodeType = data?.nodeType || 'action';
   const typeConfig = NODE_TYPES[nodeType] || NODE_TYPES.action;
@@ -19,6 +48,12 @@ const FlowNode = ({ data, selected, id }) => {
   const showInput = hasInputHandle(nodeType);
   const showOutput = hasOutputHandle(nodeType);
   const sourceHandles = getSourceHandles(nodeType);
+  const isBranchNode =
+    nodeType === 'decision' ||
+    nodeType === 'condition_expression' ||
+    nodeType === 'loop_foreach' ||
+    nodeType === 'loop_while' ||
+    nodeType === 'loop_repeat';
 
   // Execution status ring colors
   const execRingClass = executionStatus === 'running'
@@ -32,7 +67,7 @@ const FlowNode = ({ data, selected, id }) => {
   return (
     <div
       className={cn(
-        'relative min-w-[180px] rounded-xl border-2 backdrop-blur-sm transition-all duration-200',
+        'group relative min-w-[180px] rounded-xl border-2 backdrop-blur-sm transition-all duration-200',
         typeConfig.borderColor,
         typeConfig.bgColor,
         selected && !executionStatus && 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-background shadow-lg shadow-indigo-500/20',
@@ -41,63 +76,71 @@ const FlowNode = ({ data, selected, id }) => {
         'hover:shadow-md',
       )}
     >
-      {/* Input handle */}
+      {/* Input connect strips — whole left & top edges are connectable */}
       {showInput && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="!w-3 !h-3 !border-2 !border-indigo-500 !bg-background !shadow-sm"
-        />
+        <>
+          <Handle type="target" position={Position.Left} className="rf-flow-strip" style={leftStrip}>
+            <HoverDot className="left-0 top-1/2 -translate-y-1/2" />
+          </Handle>
+          <Handle type="target" position={Position.Top} id="top" className="rf-flow-strip" style={topStrip}>
+            <HoverDot className="top-0 left-1/2 -translate-x-1/2" />
+          </Handle>
+        </>
       )}
 
       {/* Output handles */}
       {showOutput && (
-        <>
-          {/* Decision/Condition nodes: Yes/No handles */}
-          {(nodeType === 'decision' || nodeType === 'condition_expression') ? (
-            <>
-              <Handle
-                type="source"
-                position={Position.Right}
-                id="yes"
-                className="!w-3 !h-3 !border-2 !border-green-500 !bg-background !shadow-sm"
-                style={{ top: '35%' }}
-              />
-              <Handle
-                type="source"
-                position={Position.Right}
-                id="no"
-                className="!w-3 !h-3 !border-2 !border-red-500 !bg-background !shadow-sm"
-                style={{ top: '65%' }}
-              />
-            </>
-          ) : (nodeType === 'loop_foreach' || nodeType === 'loop_while' || nodeType === 'loop_repeat') ? (
-            /* Loop nodes: body + done handles */
-            <>
-              <Handle
-                type="source"
-                position={Position.Right}
-                id="loop_body"
-                className="!w-3 !h-3 !border-2 !border-orange-500 !bg-background !shadow-sm"
-                style={{ top: '35%' }}
-              />
-              <Handle
-                type="source"
-                position={Position.Right}
-                id="done"
-                className="!w-3 !h-3 !border-2 !border-green-500 !bg-background !shadow-sm"
-                style={{ top: '65%' }}
-              />
-            </>
-          ) : (
-            /* Default single output handle */
-            <Handle
-              type="source"
-              position={Position.Right}
-              className="!w-3 !h-3 !border-2 !border-indigo-500 !bg-background !shadow-sm"
-            />
-          )}
-        </>
+        isBranchNode ? (
+          <>
+            {/* Decision/Condition nodes: Yes/No handles */}
+            {(nodeType === 'decision' || nodeType === 'condition_expression') ? (
+              <>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="yes"
+                  className="!w-3 !h-3 !border-2 !border-green-500 !bg-background !shadow-sm"
+                  style={{ top: '35%' }}
+                />
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="no"
+                  className="!w-3 !h-3 !border-2 !border-red-500 !bg-background !shadow-sm"
+                  style={{ top: '65%' }}
+                />
+              </>
+            ) : (
+              /* Loop nodes: body + done handles */
+              <>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="loop_body"
+                  className="!w-3 !h-3 !border-2 !border-orange-500 !bg-background !shadow-sm"
+                  style={{ top: '35%' }}
+                />
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="done"
+                  className="!w-3 !h-3 !border-2 !border-green-500 !bg-background !shadow-sm"
+                  style={{ top: '65%' }}
+                />
+              </>
+            )}
+          </>
+        ) : (
+          /* Output connect strips — whole right & bottom edges are connectable */
+          <>
+            <Handle type="source" position={Position.Right} className="rf-flow-strip" style={rightStrip}>
+              <HoverDot className="right-0 top-1/2 -translate-y-1/2" />
+            </Handle>
+            <Handle type="source" position={Position.Bottom} id="bottom" className="rf-flow-strip" style={bottomStrip}>
+              <HoverDot className="bottom-0 left-1/2 -translate-x-1/2" />
+            </Handle>
+          </>
+        )
       )}
 
       {/* Lock indicator */}
