@@ -497,7 +497,7 @@ const HierarchyTree = ({ projectId }) => {
                             {node.priority}
                           </span>
                         )}
-                        {typeof node.assignee === 'object' && node.assignee.name && (
+                        {node.assignee && typeof node.assignee === 'object' && node.assignee.name && (
                           <span>Assigned to {node.assignee.name}</span>
                         )}
                         {node.dueDate && (

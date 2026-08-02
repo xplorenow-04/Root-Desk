@@ -8,6 +8,7 @@ import ErrorState from '@/components/shared/ErrorState';
 import HierarchyTree from '@/features/nodes/components/HierarchyTree';
 import ProjectChecklist from '../components/ProjectChecklist';
 import ProjectNotes from '../components/ProjectNotes';
+import ProjectMarkdown from '../components/ProjectMarkdown';
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -87,6 +88,8 @@ const ProjectDetailPage = () => {
                   ))}
                 </div>
               </div>
+
+              <ProjectMarkdown project={project} />
             </div>
 
             {/* Metrics Sidebar Block */}

@@ -45,6 +45,12 @@ export const createProjectValidator = [
       }
       return true;
     }),
+
+  body('markdown')
+    .optional()
+    .trim()
+    .isLength({ max: 100000 })
+    .withMessage('Markdown must be at most 100000 characters'),
 ];
 
 export const updateProjectValidator = [
@@ -93,4 +99,10 @@ export const updateProjectValidator = [
       }
       return true;
     }),
+
+  body('markdown')
+    .optional()
+    .trim()
+    .isLength({ max: 100000 })
+    .withMessage('Markdown must be at most 100000 characters'),
 ];
