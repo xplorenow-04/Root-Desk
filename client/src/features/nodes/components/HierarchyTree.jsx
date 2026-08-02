@@ -224,6 +224,15 @@ const HierarchyTree = ({ projectId }) => {
     setIsDialogOpen(true);
   };
 
+  const handleToggleDone = async (node) => {
+    const nextStatus = node.status === 'completed' ? 'todo' : 'completed';
+    try {
+      await updateNode({ id: node._id, data: { status: nextStatus } });
+    } catch (err) {
+      console.error('Failed to toggle node status:', err);
+    }
+  };
+
   const handleDialogSubmit = async (formData) => {
     try {
       if (activeNode) {
@@ -546,6 +555,7 @@ const HierarchyTree = ({ projectId }) => {
                   onAddSubNode={handleAddClick}
                   onEdit={handleEditClick}
                   onDelete={handleDeleteClick}
+                  onToggleDone={handleToggleDone}
                   linkedFlowMap={linkedFlowMap}
                   progressMap={progressMap}
                   dnd={dndProps}

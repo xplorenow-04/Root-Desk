@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Plus, Edit2, Trash2, Calendar, Clock, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Edit2, Trash2, Calendar, Clock, GripVertical, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { ALLOWED_CHILDREN, ALLOWED_CHILD_LABELS, getNodeTypeConfig } from '@/constants/nodeTypes';
@@ -48,6 +48,7 @@ const TreeNodeRow = ({
   onAddSubNode,
   onEdit,
   onDelete,
+  onToggleDone,
   linkedFlowMap = {},
   progressMap = {},
   dnd = {},
@@ -92,6 +93,8 @@ const TreeNodeRow = ({
   const priority = PRIORITY_META[node.priority] || PRIORITY_META.none;
   const assigneeName = getAssigneeName(node.assignee);
   const progress = progressMap[node._id];
+  const isDone = node.status === 'completed';
+  const showToggle = node.status === 'todo' || node.status === 'completed';
   const isOverdue =
     node.dueDate && node.status !== 'completed' && node.status !== 'cancelled' && new Date(node.dueDate) < new Date();
 
@@ -156,7 +159,31 @@ const TreeNodeRow = ({
         <div className="min-w-0 flex-1">
           {/* Title line */}
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm font-semibold text-foreground truncate select-text">{node.title}</span>
+            {/* Done / Todo toggle */}
+            {showToggle && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleDone?.(node);
+                }}
+                title={isDone ? 'Mark as to do' : 'Mark as completed'}
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-all duration-150 cursor-pointer active:scale-90 ${
+                  isDone
+                    ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.25)]'
+                    : 'border-border/60 bg-background/40 text-transparent hover:border-primary/50 hover:bg-muted'
+                }`}
+              >
+                <Check className={`h-3 w-3 ${isDone ? 'animate-in fade-in zoom-in-75 duration-150' : 'opacity-0'}`} />
+              </button>
+            )}
+
+            <span
+              className={`text-sm font-semibold truncate select-text transition-colors duration-150 ${
+                isDone ? 'text-muted-foreground/70 line-through decoration-muted-foreground/50' : 'text-foreground'
+              }`}
+            >
+              {node.title}
+            </span>
 
             {hasChildren && (
               <span className="shrink-0 rounded-md bg-secondary/70 border border-border/40 px-1.5 py-px text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -293,6 +320,7 @@ const TreeNodeRow = ({
                   onAddSubNode={onAddSubNode}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onToggleDone={onToggleDone}
                   linkedFlowMap={linkedFlowMap}
                   progressMap={progressMap}
                   dnd={dnd}
