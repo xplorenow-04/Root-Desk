@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Eye, Edit, Bold, Italic, Heading, Code, List } from 'lucide-react';
+import { parseMarkdown } from '@/lib/markdown';
 
 const ProjectNotes = ({ projectId }) => {
   const [notes, setNotes] = useState('');
@@ -59,42 +60,7 @@ const ProjectNotes = ({ projectId }) => {
   };
 
   // Basic Markdown-to-HTML parser (escaped to prevent external XSS)
-  const parseMarkdown = (markdownText) => {
-    if (!markdownText.trim()) {
-      return '<p class="italic text-muted-foreground text-sm">Write notes in Markdown format...</p>';
-    }
-
-    // Escape raw HTML tags to prevent XSS
-    let html = markdownText
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    // Markdown Headers: ### -> h4, ## -> h3, # -> h2
-    html = html.replace(/^### (.*$)/gim, '<h4 class="text-sm font-bold text-foreground mt-4 mb-2">$1</h4>');
-    html = html.replace(/^## (.*$)/gim, '<h3 class="text-base font-bold text-foreground mt-5 mb-2 border-b border-border/20 pb-1">$1</h3>');
-    html = html.replace(/^# (.*$)/gim, '<h2 class="text-lg font-extrabold text-foreground mt-6 mb-3 border-b border-border/40 pb-1.5">$1</h2>');
-
-    // Code blocks
-    html = html.replace(/\`\`\`([\s\S]*?)\`\`\`/gim, '<pre class="my-4 overflow-x-auto rounded-lg border border-border/50 bg-background/80 p-3.5 font-mono text-xs text-foreground/90">$1</pre>');
-
-    // Inline code
-    html = html.replace(/\`(.*?)\`/gim, '<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-primary font-medium border border-border/30">$1</code>');
-
-    // Bold
-    html = html.replace(/\*\*(.*?)\*\*/gim, '<strong class="font-bold text-foreground">$1</strong>');
-
-    // Italic
-    html = html.replace(/\*(.*?)\*/gim, '<em class="italic text-foreground/90">$1</em>');
-
-    // Lists (bullet)
-    html = html.replace(/^\s*-\s+(.*$)/gim, '<li class="list-disc ml-5 my-1 text-sm text-foreground/95">$1</li>');
-
-    // Line breaks
-    html = html.replace(/\n/g, '<br />');
-
-    return html;
-  };
+  // Shared via @/lib/markdown
 
   return (
     <div className="space-y-4 max-w-4xl mx-auto rounded-2xl border border-border/40 bg-card/45 p-6 shadow-md backdrop-blur-md">

@@ -3,7 +3,8 @@ import ApiError from '../utils/ApiError.js';
 
 const ALLOWED_CHILD_TYPES = {
   module: ['module', 'feature'],
-  feature: ['task'],
+  feature: ['page'],
+  page: ['task'],
   task: [],
 };
 
@@ -31,7 +32,9 @@ const validateHierarchy = async (type, parentId, projectId, userId) => {
 };
 
 const getNodesByProject = async (projectId, userId) => {
-  return Node.find({ projectId, createdBy: userId, isDeleted: false }).sort({ order: 1, createdAt: 1 });
+  return Node.find({ projectId, createdBy: userId, isDeleted: false })
+    .sort({ order: 1, createdAt: 1 })
+    .populate('assignee', 'name email avatar');
 };
 
 const createNode = async (nodeData, userId) => {
@@ -64,6 +67,15 @@ const updateNode = async (nodeId, nodeData, userId) => {
         throw ApiError.badRequest(
           `Cannot change type to "${nodeData.type}" because this node has ${hasChildren} child node(s)`
         );
+      }
+
+      const childTypes = await Node.distinct('type', { parentId: nodeId, createdBy: userId, isDeleted: false });
+      for (const childType of childTypes) {
+        if (!allowedAsParent.includes(childType)) {
+          throw ApiError.badRequest(
+            `Cannot change type to "${nodeData.type}" because it has child node(s) of type "${childType}", which are not allowed under "${nodeData.type}"`
+          );
+        }
       }
     }
   }

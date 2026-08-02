@@ -32,7 +32,7 @@ export const createNodeValidator = [
   body('type')
     .optional()
     .trim()
-    .isIn(['module', 'feature', 'task'])
+    .isIn(['module', 'feature', 'page', 'task'])
     .withMessage('Invalid node type'),
 
   body('status')
@@ -46,6 +46,12 @@ export const createNodeValidator = [
     .trim()
     .isIn(['critical', 'high', 'medium', 'low', 'none'])
     .withMessage('Invalid node priority'),
+
+  body('assignee')
+    .optional({ nullable: true })
+    .custom((val) => val === '' || val === null || mongoose.Types.ObjectId.isValid(val))
+    .withMessage('Invalid assignee ID format')
+    .customSanitizer((val) => (val === '' ? null : val)),
 
   body('order')
     .optional()
@@ -103,7 +109,7 @@ export const updateNodeValidator = [
   body('type')
     .optional()
     .trim()
-    .isIn(['module', 'feature', 'task'])
+    .isIn(['module', 'feature', 'page', 'task'])
     .withMessage('Invalid node type'),
 
   body('status')
@@ -117,6 +123,12 @@ export const updateNodeValidator = [
     .trim()
     .isIn(['critical', 'high', 'medium', 'low', 'none'])
     .withMessage('Invalid node priority'),
+
+  body('assignee')
+    .optional({ nullable: true })
+    .custom((val) => val === '' || val === null || mongoose.Types.ObjectId.isValid(val))
+    .withMessage('Invalid assignee ID format')
+    .customSanitizer((val) => (val === '' ? null : val)),
 
   body('parentId')
     .optional({ nullable: true })

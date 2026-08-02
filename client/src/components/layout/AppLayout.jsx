@@ -7,7 +7,10 @@ import CommandPalette from './CommandPalette';
 
 const AppLayout = () => {
   const location = useLocation();
-  const isFullWidthPage = location.pathname.startsWith('/automation/') || location.pathname.startsWith('/database-studio');
+  const isFullWidthPage =
+    location.pathname.startsWith('/automation/') ||
+    location.pathname.startsWith('/database-studio') ||
+    location.pathname.startsWith('/projects');
 
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem('sidebarCollapsed');

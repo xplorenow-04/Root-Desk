@@ -3,17 +3,19 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tag, Calendar, LayoutGrid } from 'lucide-react';
+import { X, Tag, Calendar, LayoutGrid, User } from 'lucide-react';
 import { ALLOWED_CHILDREN } from '@/constants/nodeTypes';
 import IconPicker from '@/components/shared/IconPicker';
+import { useUsers } from '@/hooks/useUsers';
 
 const nodeFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(150, 'Title must be under 150 characters'),
   description: z.string().trim().max(1000, 'Description must be under 1000 characters').default(''),
-  type: z.enum(['module', 'feature', 'task']).default('module'),
+  type: z.enum(['module', 'feature', 'page', 'task']).default('module'),
   status: z.enum(['todo', 'in-progress', 'in-review', 'on-hold', 'completed', 'cancelled', 'archived']).default('todo'),
   priority: z.enum(['critical', 'high', 'medium', 'low', 'none']).default('medium'),
   parentId: z.string().nullable().default(null),
+  assignee: z.string().nullable().default(null),
   dueDate: z.string().nullable().default(null),
   icon: z.string().nullable().optional().default(null),
   iconColor: z.string().nullable().optional().default(null),
@@ -29,18 +31,26 @@ const NodeDialog = ({
   defaultParentId = null,
   isSubmitting = false,
 }) => {
+  const { data: users = [] } = useUsers();
   const [labels, setLabels] = useState([]);
   const [labelText, setLabelText] = useState('');
 
   // Determine which types are allowed for the current parent context
   const allowedTypes = useMemo(() => {
-    if (!defaultParentId) return Object.keys(ALLOWED_CHILDREN);
+    if (!defaultParentId) return ['module'];
     const parentNode = flatNodes.find((n) => String(n._id) === String(defaultParentId));
     if (!parentNode) return Object.keys(ALLOWED_CHILDREN);
     return ALLOWED_CHILDREN[parentNode.type] || [];
   }, [defaultParentId, flatNodes]);
 
   const defaultType = allowedTypes.length > 0 ? allowedTypes[0] : 'module';
+
+  // Normalize assignee into a select-friendly id string (handles populated objects).
+  const resolveAssigneeValue = (assignee) => {
+    if (!assignee) return '';
+    if (typeof assignee === 'object' && assignee._id) return String(assignee._id);
+    return String(assignee);
+  };
 
   const {
     register,
@@ -58,6 +68,7 @@ const NodeDialog = ({
       status: 'todo',
       priority: 'medium',
       parentId: null,
+      assignee: null,
       dueDate: '',
       icon: null,
       iconColor: null,
@@ -107,6 +118,7 @@ const NodeDialog = ({
           status: node.status,
           priority: node.priority,
           parentId: node.parentId ? String(node.parentId) : '',
+          assignee: resolveAssigneeValue(node.assignee),
           dueDate: node.dueDate ? new Date(node.dueDate).toISOString().split('T')[0] : '',
           icon: node.icon || null,
           iconColor: node.iconColor || null,
@@ -122,6 +134,7 @@ const NodeDialog = ({
           status: 'todo',
           priority: 'medium',
           parentId: defaultParentId ? String(defaultParentId) : '',
+          assignee: null,
           dueDate: '',
           icon: null,
           iconColor: null,
@@ -136,6 +149,7 @@ const NodeDialog = ({
     const formatted = {
       ...data,
       parentId: data.parentId === '' ? null : data.parentId,
+      assignee: data.assignee === '' ? null : data.assignee,
       dueDate: data.dueDate === '' ? null : data.dueDate,
       labels,
     };
@@ -289,8 +303,32 @@ const NodeDialog = ({
                   </div>
                 </div>
 
-                {/* Icon & Color Selection (Only for Module & Feature types) */}
-                {(selectedType === 'module' || selectedType === 'feature') && (
+                {/* Assignee */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-foreground/90">
+                    Assignee
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground/75">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <select
+                      {...register('assignee')}
+                      className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 pl-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus:border-primary/50 transition-all cursor-pointer"
+                    >
+                      <option value="">Unassigned</option>
+                      {users.map((u) => (
+                        <option key={u._id} value={u._id}>
+                          {u.name}
+                          {u.email ? ` (${u.email})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Icon & Color Selection (Only for Module, Feature & Page types) */}
+                {(selectedType === 'module' || selectedType === 'feature' || selectedType === 'page') && (
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground/90 block">
                       Custom Icon & Accent Color

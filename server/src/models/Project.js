@@ -38,6 +38,11 @@ const projectSchema = new mongoose.Schema(
       },
       set: (tags) => tags.map((tag) => tag.trim()).filter(Boolean),
     },
+    markdown: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
