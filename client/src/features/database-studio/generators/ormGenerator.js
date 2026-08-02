@@ -75,6 +75,20 @@ function generatePrisma(tables, relationships) {
 }
 
 // ── Mongoose Model Generator ──
+function mongooseFieldType(field) {
+  const t = (field.type || '').toLowerCase();
+  if (t.startsWith('integer') || t === 'int' || t === 'number') return 'Number';
+  if (t === 'boolean') return 'Boolean';
+  if (t === 'timestamp' || t === 'datetime' || t === 'date') return 'Date';
+  if (t === 'objectid') return 'mongoose.Schema.Types.ObjectId';
+  if (t === 'decimal128') return 'mongoose.Schema.Types.Decimal128';
+  if (t === 'mixed') return 'mongoose.Schema.Types.Mixed';
+  if (t === 'buffer') return 'Buffer';
+  if (t === 'array') return 'Array';
+  if (t === 'map') return 'Map';
+  return 'String';
+}
+
 function generateMongoose(tables, relationships) {
   let code = `import mongoose from 'mongoose';\n\n`;
 
@@ -82,28 +96,42 @@ function generateMongoose(tables, relationships) {
     code += `// ${capitalize(table.name)} Schema\nconst ${table.name}Schema = new mongoose.Schema({\n`;
     
     table.fields.forEach((field) => {
+      // _id is auto-managed by Mongoose
+      if (field.name === '_id') return;
+
       code += `  ${field.name}: {\n`;
-      
-      const t = field.type.toLowerCase();
-      let mType = 'String';
-      if (t.startsWith('integer') || t === 'int') mType = 'Number';
-      else if (t === 'boolean') mType = 'Boolean';
-      else if (t === 'timestamp' || t === 'datetime') mType = 'Date';
 
       // If this is a foreign key, link it as an ObjectId Ref
       const rel = relationships.find(r => r.fromTable === table.name && r.fromField === field.name);
       if (rel) {
         code += `    type: mongoose.Schema.Types.ObjectId,\n`;
         code += `    ref: '${capitalize(rel.toTable)}',\n`;
+      } else if (field.ref) {
+        code += `    type: mongoose.Schema.Types.ObjectId,\n`;
+        code += `    ref: '${capitalize(field.ref.split('.')[0])}',\n`;
       } else {
-        code += `    type: ${mType},\n`;
+        code += `    type: ${mongooseFieldType(field)},\n`;
       }
 
-      if (field.isPk) code += `    required: true,\n`;
+      if (field.isRequired || field.isPk) code += `    required: true,\n`;
       if (field.isUnique) code += `    unique: true,\n`;
+      if (field.isTrim) code += `    trim: true,\n`;
+      if (field.isLowercase) code += `    lowercase: true,\n`;
+      if (field.isUppercase) code += `    uppercase: true,\n`;
+      if (field.isIndex) code += `    index: true,\n`;
+      if (field.minLength) code += `    minlength: ${field.minLength},\n`;
+      if (field.maxLength) code += `    maxlength: ${field.maxLength},\n`;
+      if (field.enumValues) {
+        const vals = String(field.enumValues)
+          .split(/[,\s]+/)
+          .map(v => v.trim())
+          .filter(Boolean);
+        code += `    enum: [${vals.map(v => `'${v}'`).join(', ')}],\n`;
+      }
       if (field.defaultVal) {
-        const quote = typeof field.defaultVal === 'string' ? "'" : '';
-        code += `    default: ${quote}${field.defaultVal}${quote},\n`;
+        const dv = String(field.defaultVal);
+        const isExpression = /[.()]/.test(dv) || /^\d+(\.\d+)?$/.test(dv);
+        code += `    default: ${isExpression ? dv : `'${dv}'`},\n`;
       }
 
       code += `  },\n`;

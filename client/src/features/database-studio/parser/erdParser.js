@@ -115,25 +115,63 @@ export function parseDBML(code) {
 
       if (match) {
         const [_, fieldName, fieldType, optionStr] = match;
-        const options = optionStr ? optionStr.split(',').map(s => s.trim().toLowerCase()) : [];
+        const options = optionStr ? optionStr.split(',').map(s => s.trim()) : [];
+        const lowerOpts = options.map(o => o.toLowerCase());
 
-        const isPk = options.includes('pk');
-        const isIncrement = options.includes('increment');
-        const isUnique = options.includes('unique');
-        const isNullable = !options.includes('notnull');
+        const isPk = lowerOpts.includes('pk');
+        const isIncrement = lowerOpts.includes('increment');
+        const isUnique = lowerOpts.includes('unique');
+        const isNullable = !lowerOpts.includes('notnull');
+
+        // MongoDB-specific flags
+        const isRequired = lowerOpts.includes('required');
+        const isTrim = lowerOpts.includes('trim');
+        const isLowercase = lowerOpts.includes('lowercase');
+        const isUppercase = lowerOpts.includes('uppercase');
+        const isIndex = lowerOpts.includes('index');
 
         let defaultVal = '';
-        const defaultOpt = options.find(opt => opt.startsWith('default:'));
+        const defaultOpt = options.find(opt => opt.toLowerCase().startsWith('default:'));
         if (defaultOpt) {
           defaultVal = defaultOpt.substring(8).replace(/['"]/g, '').trim();
         }
 
+        let minLength = '';
+        const minLenOpt = lowerOpts.find(opt => opt.startsWith('minlength:'));
+        if (minLenOpt) {
+          minLength = minLenOpt.substring(10).trim();
+        }
+
+        let maxLength = '';
+        const maxLenOpt = lowerOpts.find(opt => opt.startsWith('maxlength:'));
+        if (maxLenOpt) {
+          maxLength = maxLenOpt.substring(10).trim();
+        }
+
+        let enumValues = '';
+        const enumOpt = options.find(opt => opt.toLowerCase().startsWith('enum:'));
+        if (enumOpt) {
+          const enumStart = options.indexOf(enumOpt);
+          enumValues = enumOpt.substring(5).trim();
+          // Enum values may contain commas that the naive split broke apart.
+          // Merge any following tokens that are not new option keywords.
+          for (let j = enumStart + 1; j < options.length; j++) {
+            const next = options[j];
+            if (next.includes(':')) break;
+            if (['pk', 'increment', 'unique', 'notnull', 'required', 'trim', 'lowercase', 'uppercase', 'index'].includes(next.toLowerCase())) break;
+            enumValues += ' ' + next.trim();
+            options.splice(j, 1);
+            j -= 1;
+          }
+        }
+
         // Inline reference check
-        // Format: [ref: > roles.id]
-        const refOpt = options.find(opt => opt.startsWith('ref:'));
+        // Format: [ref: > roles.id] or [ref: > Roles]
+        let ref = '';
+        const refOpt = options.find(opt => opt.toLowerCase().startsWith('ref:'));
         if (refOpt) {
-          const inlineRefRegex = /^ref:\s*([><-])\s*([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)$/;
           const refBody = refOpt.substring(4).trim();
+          const inlineRefRegex = /^([><-])\s*([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)$/;
           const refMatch = refBody.match(inlineRefRegex);
           if (refMatch) {
             const [__, relOp, toTable, toField] = refMatch;
@@ -149,6 +187,12 @@ export function parseDBML(code) {
               toField,
               type,
             });
+
+            ref = `${toTable}.${toField}`;
+          } else {
+            const bareRefRegex = /^([><-])\s*([a-zA-Z0-9_]+)$/;
+            const bareRefMatch = refBody.match(bareRefRegex);
+            ref = bareRefMatch ? bareRefMatch[2] : refBody;
           }
         }
 
@@ -160,6 +204,16 @@ export function parseDBML(code) {
           isUnique,
           isNullable,
           defaultVal,
+          // MongoDB-specific
+          isRequired,
+          isTrim,
+          isLowercase,
+          isUppercase,
+          isIndex,
+          minLength,
+          maxLength,
+          enumValues,
+          ref,
         });
       } else {
         errors.push({
@@ -203,9 +257,26 @@ export function generateDBML(tables = [], relationships = []) {
       const opts = [];
       if (field.isPk) opts.push('pk');
       if (field.isIncrement) opts.push('increment');
-      if (!field.isNullable) opts.push('notnull');
       if (field.isUnique) opts.push('unique');
+
+      // MongoDB uses `required`; relational models use `notnull`
+      if (field.isRequired) opts.push('required');
+      else if (field.isNullable === false || field.isNotNull) opts.push('notnull');
+
       if (field.defaultVal) opts.push(`default: "${field.defaultVal}"`);
+
+      // MongoDB specific options
+      if (field.isTrim) opts.push('trim');
+      if (field.isLowercase) opts.push('lowercase');
+      if (field.isUppercase) opts.push('uppercase');
+      if (field.isIndex) opts.push('index');
+      if (field.minLength) opts.push(`minlength: ${field.minLength}`);
+      if (field.maxLength) opts.push(`maxlength: ${field.maxLength}`);
+      if (field.enumValues) opts.push(`enum: ${field.enumValues}`);
+      if (field.ref) {
+        const hasInlineRel = (relationships || []).some(r => r.fromTable === table.name && r.fromField === field.name);
+        if (!hasInlineRel) opts.push(`ref: > ${field.ref}`);
+      }
 
       const optionsStr = opts.length ? ` [${opts.join(', ')}]` : '';
       code += `    ${field.name} ${field.type}${optionsStr}\n`;

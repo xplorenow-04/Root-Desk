@@ -40,6 +40,7 @@ import PropertiesPanel from '../components/PropertiesPanel';
 import Console from '../components/Console';
 import TableNode from '../components/TableNode';
 import RelationshipEdge from '../components/RelationshipEdge';
+import CreateDatabaseModal from '../components/CreateDatabaseModal';
 
 import { parseDBML, generateDBML } from '../parser/erdParser';
 import { reverseEngineerSQL } from '../reverse/reverseEngineer';
@@ -175,7 +176,7 @@ function generateSchemaFromPrompt(prompt) {
 }
 
 const DatabaseStudioInner = () => {
-  const { projects = [], isLoading: loadingProjects } = useProjects();
+  const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState('');
   
   // Diagrams state
@@ -206,6 +207,7 @@ const DatabaseStudioInner = () => {
   const [promptText, setPromptText] = useState('');
   const [importOpen, setImportOpen] = useState(false);
   const [importSql, setImportSql] = useState('');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   
   const reactFlowInstance = useRef(null);
   const isSyncingFromCode = useRef(false);
@@ -220,7 +222,7 @@ const DatabaseStudioInner = () => {
   const loadProjectDiagrams = useCallback(async (projId) => {
     try {
       const res = await databaseStudioApi.getDiagrams(projId);
-      setDiagrams(res.diagrams || []);
+      setDiagrams(res.data?.diagrams || []);
     } catch (err) {
       toast.error('Failed to load diagrams list');
     }
@@ -445,37 +447,81 @@ const DatabaseStudioInner = () => {
   }, [tables, relationships, syncVisualToCode]);
 
   // ── Diagram CRUD actions ──
+  const loadDiagramIntoState = useCallback((diagram) => {
+    setCurrentDiagram(diagram);
+
+    // Parse code immediately so the canvas/schema reflect this diagram
+    // even if the code string happens to match the previously loaded one.
+    const parsed = parseDBML(diagram.code || '');
+    setSyntaxErrors(parsed.errors || []);
+    setCode(diagram.code || '');
+
+    if (parsed.errors && parsed.errors.length > 0) {
+      setTables([]);
+      setRelationships([]);
+      setNodes(diagram.nodes || []);
+      setEdges(diagram.edges || []);
+      return;
+    }
+
+    setTables(parsed.tables || []);
+    setRelationships(parsed.relationships || []);
+
+    setNodes((prevNodes) => {
+      if (diagram.nodes && diagram.nodes.length) return diagram.nodes;
+      return (parsed.tables || []).map((t, idx) => {
+        const existing = prevNodes.find((n) => n.id === t.name);
+        return {
+          id: t.name,
+          type: 'tableNode',
+          position: existing ? existing.position : { x: 100 + idx * 280, y: 100 + (idx % 2) * 150 },
+          data: { name: t.name, fields: t.fields, color: existing?.data?.color || '#6366f1' },
+        };
+      });
+    });
+
+    setEdges(() => {
+      if (diagram.edges && diagram.edges.length) return diagram.edges;
+      return (parsed.relationships || []).map((r) => ({
+        id: r.id,
+        source: r.fromTable,
+        target: r.toTable,
+        sourceHandle: r.fromField,
+        targetHandle: r.toField,
+        type: 'relationship',
+        data: { type: r.type },
+      }));
+    });
+  }, []);
+
   const handleSelectDiagram = useCallback(async (diag) => {
     try {
       const res = await databaseStudioApi.getDiagram(diag._id);
-      setCurrentDiagram(res.diagram);
-      setCode(res.diagram.code || '');
-      setNodes(res.diagram.nodes || []);
-      setEdges(res.diagram.edges || []);
-      toast.success(`Loaded model: ${res.diagram.name}`);
+      const diagram = res.data?.diagram || res.diagram; // fallback just in case
+      loadDiagramIntoState(diagram);
+      toast.success(`Loaded model: ${diagram.name}`);
     } catch (err) {
       toast.error('Failed to load diagram');
     }
-  }, []);
+  }, [loadDiagramIntoState]);
 
-  const handleCreateDiagram = useCallback(async () => {
-    if (!selectedProjectId) return;
-    const name = prompt('Enter ER Diagram name:');
-    if (!name) return;
+  const handleCreateDiagram = useCallback(() => {
+    if (!selectedProjectId) {
+      toast.error('Please select a project first');
+      return;
+    }
+    setCreateModalOpen(true);
+  }, [selectedProjectId]);
 
+  const handleDiagramCreated = useCallback(async (diagramData) => {
     try {
-      const res = await databaseStudioApi.createDiagram({
-        name,
-        projectId: selectedProjectId,
-        code: `Table users {\n  id integer [pk, increment]\n  email varchar [unique, notnull]\n}\n`,
-        nodes: [],
-        edges: [],
-      });
-      toast.success('Diagram created');
+      const res = await databaseStudioApi.createDiagram(diagramData);
+      toast.success('Diagram created successfully');
       loadProjectDiagrams(selectedProjectId);
-      handleSelectDiagram(res.diagram);
+      handleSelectDiagram(res.data?.diagram || res.diagram);
     } catch (err) {
       toast.error('Failed to create diagram');
+      throw err;
     }
   }, [selectedProjectId, loadProjectDiagrams, handleSelectDiagram]);
 
@@ -487,8 +533,11 @@ const DatabaseStudioInner = () => {
       if (currentDiagram?._id === id) {
         setCurrentDiagram(null);
         setCode('');
+        setTables([]);
+        setRelationships([]);
         setNodes([]);
         setEdges([]);
+        setSyntaxErrors([]);
       }
       loadProjectDiagrams(selectedProjectId);
     } catch (err) {
@@ -513,7 +562,7 @@ const DatabaseStudioInner = () => {
       loadProjectDiagrams(selectedProjectId);
       // Reload diagram to fetch updated version stack
       const res = await databaseStudioApi.getDiagram(currentDiagram._id);
-      setCurrentDiagram(res.diagram);
+      setCurrentDiagram(res.data.diagram);
     } catch (err) {
       toast.error('Failed to save diagram');
     }
@@ -525,15 +574,13 @@ const DatabaseStudioInner = () => {
 
     try {
       const res = await databaseStudioApi.restoreDiagramVersion(currentDiagram._id, verNum);
+      const diagram = res.data.diagram;
+      loadDiagramIntoState(diagram);
       toast.success(`Restored to version v${verNum}`);
-      setCurrentDiagram(res.diagram);
-      setCode(res.diagram.code);
-      setNodes(res.diagram.nodes);
-      setEdges(res.diagram.edges);
     } catch (err) {
       toast.error('Failed to restore version');
     }
-  }, [currentDiagram]);
+  }, [currentDiagram, loadDiagramIntoState]);
 
   // Load predefined template
   const handleLoadTemplate = (tpl) => {
@@ -905,6 +952,14 @@ const DatabaseStudioInner = () => {
           </div>
         </div>
       )}
+
+      {/* ── Create Database Model Modal ── */}
+      <CreateDatabaseModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        selectedProjectId={selectedProjectId}
+        onCreated={handleDiagramCreated}
+      />
     </div>
   );
 };

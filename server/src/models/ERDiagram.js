@@ -20,6 +20,11 @@ const erDiagramSchema = new mongoose.Schema(
       required: [true, 'Project ID is required'],
       index: true,
     },
+    language: {
+      type: String,
+      enum: ['sql', 'mongodb'],
+      default: 'sql',
+    },
     code: {
       type: String,
       default: '',

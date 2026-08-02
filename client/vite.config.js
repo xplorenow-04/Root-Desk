@@ -14,7 +14,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://root-desk.onrender.com',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
     },

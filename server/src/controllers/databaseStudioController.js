@@ -12,7 +12,7 @@ const getDiagramsByProject = asyncHandler(async (req, res) => {
     throw ApiError.badRequest('Project ID query parameter is required');
   }
   const diagrams = await ERDiagram.find({ projectId, createdBy: req.user._id })
-    .select('name description projectId createdAt updatedAt')
+    .select('name description projectId language createdAt updatedAt')
     .sort({ updatedAt: -1 });
 
   ApiResponse.success({ diagrams }, 'Diagrams retrieved successfully').send(res);
@@ -33,7 +33,7 @@ const getDiagramById = asyncHandler(async (req, res) => {
  * Create a new ER Diagram.
  */
 const createDiagram = asyncHandler(async (req, res) => {
-  const { name, description, projectId, code, nodes, edges } = req.body;
+  const { name, description, projectId, language, code, nodes, edges } = req.body;
   if (!name || !projectId) {
     throw ApiError.badRequest('Name and Project ID are required');
   }
@@ -42,6 +42,7 @@ const createDiagram = asyncHandler(async (req, res) => {
     name,
     description: description || '',
     projectId,
+    language: language || 'sql',
     code: code || '',
     nodes: nodes || [],
     edges: edges || [],
