@@ -28,8 +28,14 @@ const nodeSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['module', 'feature', 'task'],
+      enum: ['module', 'feature', 'page', 'task'],
       default: 'module',
+    },
+    assignee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+      index: true,
     },
     icon: {
       type: String,

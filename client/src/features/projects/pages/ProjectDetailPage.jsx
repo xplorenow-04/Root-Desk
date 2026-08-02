@@ -130,7 +130,7 @@ const ProjectDetailPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 min-h-0 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
       {/* Back button and Favorite toggler */}
       <div className="flex items-center justify-between">
         <Link
