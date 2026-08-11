@@ -414,10 +414,13 @@ const PracticeInner = () => {
   );
 };
 
-const SystemDesignPracticePage = () => (
-  <ReactFlowProvider>
-    <PracticeInner />
-  </ReactFlowProvider>
-);
+const SystemDesignPracticePage = () => {
+  const { problemId } = useParams();
+  return (
+    <ReactFlowProvider>
+      <PracticeInner key={problemId} />
+    </ReactFlowProvider>
+  );
+};
 
 export default SystemDesignPracticePage;

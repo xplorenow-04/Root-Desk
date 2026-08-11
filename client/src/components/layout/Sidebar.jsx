@@ -1,13 +1,18 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { NAV_GROUPS } from '@/constants/navigation';
 import { sidebarTransition } from '@/lib/animations';
 
+const isStudioActive = (pathname) =>
+  pathname === '/system-design' ||
+  (pathname.startsWith('/system-design/') && !pathname.startsWith('/system-design/practice'));
+
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
     <motion.aside
@@ -59,13 +64,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                   <li key={item.label}>
                     <NavLink
                       to={item.path}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 group relative ${
-                          isActive
+                      className={({ isActive }) => {
+                        const active = item.path === '/system-design' ? isStudioActive(location.pathname) : isActive;
+                        return `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 group relative ${
+                          active
                             ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm'
                             : 'text-muted-foreground hover:bg-sidebar-accent/40 hover:text-foreground'
-                        }`
-                      }
+                        }`;
+                      }}
                       title={isCollapsed ? item.label : undefined}
                     >
                       <Icon className="h-4 w-4 shrink-0" />

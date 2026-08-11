@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Plus, Upload, LayoutTemplate, Trash2, Network, Pencil, Loader2,
@@ -38,8 +38,13 @@ const fmtTime = (iso) => {
 const SystemDesignStudioPage = () => {
   const navigate = useNavigate();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
-  const [projectId, setProjectId] = useState('');
+  const [projectId, setProjectId] = useState(() => localStorage.getItem('sd-studio-project') || '');
   const { data: designs = [], isLoading: designsLoading } = useSystemDesigns(projectId);
+
+  useEffect(() => {
+    if (projectId) localStorage.setItem('sd-studio-project', projectId);
+    else localStorage.removeItem('sd-studio-project');
+  }, [projectId]);
 
   const createMutation = useCreateSystemDesign();
   const deleteMutation = useDeleteSystemDesign(projectId);

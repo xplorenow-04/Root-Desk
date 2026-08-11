@@ -248,6 +248,53 @@ const EditorInner = () => {
     [insertPattern]
   );
 
+  const handleCanvasNodeClick = useCallback(
+    (e, n) => {
+      if (n.type === 'groupNode') {
+        setSelectedGroupId(n.id.replace('group:', ''));
+        setRightPanel('properties');
+      } else {
+        onNodeClick?.(e, n);
+        setRightPanel('properties');
+      }
+    },
+    [onNodeClick, setSelectedGroupId, setRightPanel]
+  );
+
+  const handleCanvasEdgeClick = useCallback(
+    (e, ed) => {
+      onEdgeClick?.(e, ed);
+      setRightPanel('properties');
+    },
+    [onEdgeClick, setRightPanel]
+  );
+
+  const handleCanvasPaneClick = useCallback(
+    (e) => {
+      onPaneClick?.(e);
+      setRightPanel('properties');
+    },
+    [onPaneClick, setRightPanel]
+  );
+
+  const handleCanvasSelectionChange = useCallback(
+    (sel) => onSelectionChange?.(sel),
+    [onSelectionChange]
+  );
+
+  const handleCanvasDropComponent = useCallback(
+    (type, position) => {
+      const createdId = editor.addNode?.(type, position.x, position.y);
+      if (createdId) {
+        setSelectedNodeIds([createdId]);
+        setSelectedEdgeId(null);
+        setSelectedGroupId(null);
+        setRightPanel('properties');
+      }
+    },
+    [editor, setSelectedNodeIds, setSelectedEdgeId, setSelectedGroupId, setRightPanel]
+  );
+
   /**
    * Place a component at the center of the visible canvas (with a small
    * cascade offset per click) and select it so its properties show.
@@ -472,33 +519,11 @@ const EditorInner = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onNodeClick={(e, n) => {
-              if (n.type === 'groupNode') {
-                setSelectedGroupId(n.id.replace('group:', ''));
-                setRightPanel('properties');
-              } else {
-                onNodeClick?.(e, n);
-                setRightPanel('properties');
-              }
-            }}
-            onEdgeClick={(e, ed) => {
-              onEdgeClick?.(e, ed);
-              setRightPanel('properties');
-            }}
-            onPaneClick={(e) => {
-              onPaneClick?.(e);
-              setRightPanel('properties');
-            }}
-            onSelectionChange={(sel) => onSelectionChange?.(sel)}
-            onDropComponent={(type, position) => {
-              const createdId = editor.addNode?.(type, position.x, position.y);
-              if (createdId) {
-                setSelectedNodeIds([createdId]);
-                setSelectedEdgeId(null);
-                setSelectedGroupId(null);
-                setRightPanel('properties');
-              }
-            }}
+            onNodeClick={handleCanvasNodeClick}
+            onEdgeClick={handleCanvasEdgeClick}
+            onPaneClick={handleCanvasPaneClick}
+            onSelectionChange={handleCanvasSelectionChange}
+            onDropComponent={handleCanvasDropComponent}
             onDropPattern={dropPattern}
             onPaneContextMenu={handlePaneContextMenu}
             onNodeContextMenu={handleNodeContextMenu}
