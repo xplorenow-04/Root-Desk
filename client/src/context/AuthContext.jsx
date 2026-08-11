@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authApi.login(credentials);
       if (response.success && response.data?.user) {
+        if (response.data.token) localStorage.setItem('token', response.data.token);
         setUser(response.data.user);
         return response.data.user;
       }
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authApi.register(userData);
       if (response.success && response.data?.user) {
+        if (response.data.token) localStorage.setItem('token', response.data.token);
         setUser(response.data.user);
         return response.data.user;
       }
@@ -67,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('token');
       setUser(null);
       setLoading(false);
     }

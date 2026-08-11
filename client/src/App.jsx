@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -23,6 +24,10 @@ const FlowListPage = lazy(() => import('@/features/automation/pages/FlowListPage
 const FlowEditorPage = lazy(() => import('@/features/automation/pages/FlowEditorPage'));
 const FlowTemplatesPage = lazy(() => import('@/features/automation/pages/FlowTemplatesPage'));
 const FlowExecutionDetailPage = lazy(() => import('@/features/automation/pages/FlowExecutionDetailPage'));
+const SystemDesignStudioPage = lazy(() => import('@/features/system-design/pages/SystemDesignStudioPage'));
+const SystemDesignEditorPage = lazy(() => import('@/features/system-design/pages/SystemDesignEditorPage'));
+const SystemDesignPracticeLobbyPage = lazy(() => import('@/features/system-design/pages/SystemDesignPracticeLobbyPage'));
+const SystemDesignPracticePage = lazy(() => import('@/features/system-design/pages/SystemDesignPracticePage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,12 +74,17 @@ function App() {
                       <Route path="/automation/flows/:id" element={<FlowEditorPage />} />
                       <Route path="/automation/templates" element={<FlowTemplatesPage />} />
                       <Route path="/automation/executions/:executionId" element={<FlowExecutionDetailPage />} />
+                      <Route path="/system-design" element={<SystemDesignStudioPage />} />
+                      <Route path="/system-design/practice" element={<SystemDesignPracticeLobbyPage />} />
+                      <Route path="/system-design/practice/:problemId" element={<SystemDesignPracticePage />} />
+                      <Route path="/system-design/:id" element={<SystemDesignEditorPage />} />
                     </Route>
 
                     {/* Catch-all Redirect */}
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Suspense>
+                <Toaster position="top-right" richColors closeButton />
               </div>
             </ErrorBoundary>
           </AuthProvider>
