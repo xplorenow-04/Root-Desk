@@ -33,7 +33,7 @@ const register = asyncHandler(async (req, res) => {
   // Set HTTP-Only Cookie
   res.cookie('token', token, getCookieOptions());
 
-  ApiResponse.created({ user }, 'Registration successful').send(res);
+  ApiResponse.created({ user, token }, 'Registration successful').send(res);
 });
 
 /**
@@ -53,7 +53,7 @@ const login = asyncHandler(async (req, res) => {
   // Set HTTP-Only Cookie
   res.cookie('token', token, getCookieOptions());
 
-  ApiResponse.success({ user }, 'Login successful').send(res);
+  ApiResponse.success({ user, token }, 'Login successful').send(res);
 });
 
 /**

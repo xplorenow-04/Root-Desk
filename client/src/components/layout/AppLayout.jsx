@@ -10,7 +10,8 @@ const AppLayout = () => {
   const isFullWidthPage =
     location.pathname.startsWith('/automation/') ||
     location.pathname.startsWith('/database-studio') ||
-    location.pathname.startsWith('/projects');
+    location.pathname.startsWith('/projects') ||
+    location.pathname.startsWith('/system-design');
 
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem('sidebarCollapsed');

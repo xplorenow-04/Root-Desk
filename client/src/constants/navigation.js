@@ -8,6 +8,8 @@ import {
   Workflow,
   LayoutTemplate,
   Database,
+  Network,
+  Trophy,
 } from 'lucide-react';
 
 /**
@@ -35,6 +37,13 @@ export const NAV_GROUPS = [
       { label: 'Flows', path: '/automation/flows', icon: Workflow },
       { label: 'Templates', path: '/automation/templates', icon: LayoutTemplate },
       { label: 'Database Studio', path: '/database-studio', icon: Database },
+    ],
+  },
+  {
+    label: 'System Design',
+    items: [
+      { label: 'Studio', path: '/system-design', icon: Network },
+      { label: 'Practice', path: '/system-design/practice', icon: Trophy },
     ],
   },
   {
