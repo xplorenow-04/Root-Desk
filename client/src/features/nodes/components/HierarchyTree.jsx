@@ -546,7 +546,7 @@ const HierarchyTree = ({ projectId }) => {
         ) : (
           /* Render tree hierarchy view */
           <div className="w-full overflow-x-auto scrollbar-none">
-            <div className="min-w-[540px] space-y-1">
+            <div className="space-y-0">
               {tree.map((rootNode) => (
                 <TreeNodeRow
                   key={rootNode._id}
